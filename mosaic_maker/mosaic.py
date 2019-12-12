@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import os
 import glob
 import argparse
@@ -9,40 +6,7 @@ from PIL import Image, ExifTags
 from multiprocessing import Pool
 import numpy as np
 
-
-def crop_square(image_to_crop):
-    '''
-    Crop image_to_crop to square by croping the largest dimension
-    '''
-    pleb_size = image_to_crop.size
-    min_dim_i = np.argmin(pleb_size)
-    min_dim = pleb_size[min_dim_i]
-
-    if min_dim_i == 0:
-        crop_box = (0, (pleb_size[1]-min_dim)/2, pleb_size[0], (pleb_size[1]+min_dim)/2)
-    if min_dim_i == 1:
-        crop_box = ((pleb_size[0]-min_dim)/2, 0, (pleb_size[0]+min_dim)/2 ,pleb_size[1])
-
-    crop_image = image_to_crop.crop(crop_box)
-    return crop_image
-
-def open_exif(image_file):
-    '''
-    Opens image_file and takes into account the orientation tag to conserve the
-    correct orientation
-    '''
-    img = Image.open(image_file)
-    try :
-        exif=dict((ExifTags.TAGS[k], v) for k, v in img._getexif().items() if k in ExifTags.TAGS)
-        if   exif['Orientation'] == 3:
-            img = img.rotate(180, expand=True)
-        elif exif['Orientation'] == 6:
-            img = img.rotate(270, expand=True)
-        elif exif['Orientation'] == 8:
-            img = img.rotate(90, expand=True)
-        return img
-    except AttributeError:
-        return img
+from .utils import crop_square
 
 class Mosaic(object):
     def __init__(self, master_img, tile_dir, verbose=False, mode="RGB"):
@@ -111,7 +75,7 @@ class Mosaic(object):
         return master_arrays
 
     def find_tiles(self):
-        files = glob.glob(self.tile_dir+"/**/*")
+        files = glob.glob(self.tile_dir+"/*")
         return files
 
     def load_square(self, im):
@@ -152,6 +116,7 @@ class Mosaic(object):
         Builds a proper mosaic, much more time consuming
         '''
         w, h = self.mosaic_size[0], self.mosaic_size[1]
+        print(w, h)
         if self.mode == "L":
             self.mosaic = np.zeros((h, w))
         elif self.mode == "RGB":
@@ -187,37 +152,3 @@ class Mosaic(object):
         self.mosaic = im
         return self.mosaic
 
-#%%
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("tile_dir", help="path of directory containing the tiles of the mosaic", type=str)
-    parser.add_argument("master", help= "path of master image", type=str)
-    parser.add_argument("output", help="path of output")
-    parser.add_argument("-u", "--upscale", help="upscale coefficient master", default=1, type=float)
-    parser.add_argument("-s", "--show", help="show mosaic after building", action="store_true")
-    parser.add_argument("-v", "--verbose", help="verbosity", action="store_true")
-    parser.add_argument("-b", "--black_and_white", help="black and white", action="store_true")
-    args = parser.parse_args()
-
-    master = args.master
-    tile_dir = args.tile_dir
-    upscale = args.upscale
-    verbose = args.verbose
-    output = args.output
-    mode = "RGB"
-
-    master_im = open_exif(master)
-    scaled = [int(i*upscale) for i in master_im.size]
-    master_im = master_im.resize(scaled)
-
-    if args.black_and_white:
-        mode = "L"
-        print("Converting to black and white")
-        master_im = master_im.convert(mode=mode)
-
-    mosaic = Mosaic(master_im, tile_dir, verbose=verbose, mode=mode)
-    mosaic.tile_load()
-    mosaic_im = mosaic.build_mosaic()
-    if args.show:
-        mosaic_im.show()
-    mosaic_im.save(output)
