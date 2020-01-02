@@ -35,5 +35,5 @@ def open_exif(image_file):
         elif exif['Orientation'] == 8:
             img = img.rotate(90, expand=True)
         return img
-    except KeyError:
+    except (KeyError, AttributeError):
         return img

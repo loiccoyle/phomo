@@ -9,8 +9,10 @@ from .utils import crop_square
 
 
 class Mosaic(object):
-    def __init__(self, master_img, tile_dir, verbose=False, mode="RGB"):
+    def __init__(self, master_img, tile_dir, verbose=False, mode="RGB",
+                 usage_factor=0.9):
         self.master_img = master_img
+        self.usage_factor = usage_factor
         self.tile_dir = Path(tile_dir)
         self.verbose = verbose
         self.mode = mode
@@ -30,7 +32,8 @@ class Mosaic(object):
     def tile_dir(self, value):
         self._tile_dir = value
         self._tiles = self.find_tiles()
-        self._grid = [np.sqrt(len(self.tiles) * 0.9) * i
+        print(self._tiles)
+        self._grid = [np.sqrt(len(self.tiles) * self.usage_factor) * i
                       for i in [self.width_to_height, 1]]
         self._tile_size = np.ceil(np.divide(self.master_img.size, self.grid))\
             .astype(int)
@@ -69,7 +72,7 @@ class Mosaic(object):
 
     def get_master_arrays(self):
         master_arrays = []
-        master_ar = np.array(self.master_img)
+        master_ar = np.array(self.master_img).astype('int16')
         for x in range(0, self.mosaic_size[0], self.tile_size[0]):
             for y in range(0, self.mosaic_size[1], self.tile_size[1]):
                 if self.mode == "L":
@@ -82,6 +85,7 @@ class Mosaic(object):
 
     def find_tiles(self):
         files = list(self.tile_dir.glob('*'))
+        files = [f for f in files if f.name not in ['.DS_Store']]
         return files
 
     def load_square(self, im):
@@ -93,12 +97,13 @@ class Mosaic(object):
             if image.mode != self.mode:
                 image = image.convert(mode=self.mode)
             # self.tile_arrays.append([im,np.array(image)])
-            tile.close()
+            # tile.close()
         except (IndexError, OSError, ValueError) as e:
             print('Error {} skipping {}'.format(e, im))
-            tile.close()
+            # tile.close()
             return
-        return [im, np.array(image)]
+        tile.close()
+        return [im, np.array(image).astype('int16')]
 
     def tile_load(self):
         '''Goes through the pleb_dir files and gets the avg colour stores in
@@ -130,17 +135,20 @@ class Mosaic(object):
             self.mosaic = np.zeros((h, w, 3))
         self.d_matrix = np.zeros((len(self.master_arrays),
                                   len(self.tile_arrays)))
+        print(self.d_matrix.shape)
 
         for i, tile in tqdm(enumerate(self.tile_arrays),
                             total=len(self.tile_arrays),
                             desc='Building distance matrix  '):
             self.calc_distance(tile, i)
+            # print(tile)
+        # print(self.d_matrix)
 
         d_temp = np.ma.array(self.d_matrix)
         pbar = tqdm(total=d_temp.shape[0], desc="Building mosaic           ")
         while d_temp[~d_temp.mask].size != 0:
             min_ind = np.where(d_temp == np.min(d_temp[~d_temp.mask]))
-            for ind in zip(min_ind[0] , min_ind[1]):
+            for ind in zip(min_ind[0], min_ind[1]):
                 row = ind[0]
                 col = ind[1]
                 if d_temp.mask.shape != () and d_temp.mask[row, col]:

@@ -12,6 +12,8 @@ if __name__ == '__main__':
     parser.add_argument("master", help="path of master image",
                         type=str)
     parser.add_argument("output", help="path of output")
+    parser.add_argument('-f', "--usage_factor", default=0.9, help="ratio of tile images to use",
+                        type=float)
     parser.add_argument("-u", "--upscale", help="upscale coefficient master",
                         default=1, type=float)
     parser.add_argument("-s", "--show", help="show mosaic after building",
@@ -27,6 +29,7 @@ if __name__ == '__main__':
     upscale = args.upscale
     verbose = args.verbose
     output = args.output
+    usage_factor = args.usage_factor
     mode = "RGB"
 
     master_im = open_exif(master)
@@ -38,7 +41,7 @@ if __name__ == '__main__':
         print("Converting to black and white")
         master_im = master_im.convert(mode=mode)
 
-    mosaic = Mosaic(master_im, tile_dir, verbose=verbose, mode=mode)
+    mosaic = Mosaic(master_im, tile_dir, verbose=verbose, mode=mode, usage_factor=usage_factor)
     mosaic.tile_load()
     mosaic_im = mosaic.build_mosaic()
     if args.show:
