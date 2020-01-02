@@ -13,7 +13,7 @@ python setup.py install
 ```
 
 ## Usage
-Once it is installed, you hsould be able to run the `mm` executable.
+Once it is installed, you should be able to run the `mm` executable.
 
 Like so:
 
@@ -26,4 +26,5 @@ Additional arguments:
 -b: black and white
 -u float: upscale output image factor (by default the output image will be the same resolution as the master image)
 -v: verbose
+-f: usage factor, ratio of how many of the tile images should be used
 ```
