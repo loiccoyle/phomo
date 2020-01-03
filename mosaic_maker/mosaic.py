@@ -1,4 +1,3 @@
-import glob
 from tqdm import tqdm
 from PIL import Image
 from pathlib import Path
@@ -6,6 +5,7 @@ from multiprocessing import Pool
 import numpy as np
 
 from .utils import crop_square
+from .utils import open_exif
 
 
 class Mosaic(object):
@@ -32,7 +32,6 @@ class Mosaic(object):
     def tile_dir(self, value):
         self._tile_dir = value
         self._tiles = self.find_tiles()
-        print(self._tiles)
         self._grid = [np.sqrt(len(self.tiles) * self.usage_factor) * i
                       for i in [self.width_to_height, 1]]
         self._tile_size = np.ceil(np.divide(self.master_img.size, self.grid))\
@@ -91,7 +90,7 @@ class Mosaic(object):
     def load_square(self, im):
 
         try:
-            tile = Image.open(im)
+            tile = open_exif(im)
             image = crop_square(tile)
             image = image.resize(self.tile_size, Image.ANTIALIAS)
             if image.mode != self.mode:

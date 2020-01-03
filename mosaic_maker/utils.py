@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image, ExifTags
+from PIL import Image, ExifTags, ImageOps
 
 
 def crop_square(image_to_crop):
@@ -26,14 +26,19 @@ def open_exif(image_file):
     '''
     img = Image.open(image_file)
     try:
-        exif = dict((ExifTags.TAGS[k], v)
-                    for k, v in img._getexif().items() if k in ExifTags.TAGS)
-        if exif['Orientation'] == 3:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+        exif = dict(img._getexif().items())
+
+        if exif[orientation] == 3:
             img = img.rotate(180, expand=True)
-        elif exif['Orientation'] == 6:
+        elif exif[orientation] == 6:
             img = img.rotate(270, expand=True)
-        elif exif['Orientation'] == 8:
+        elif exif[orientation] == 8:
             img = img.rotate(90, expand=True)
-        return img
-    except (KeyError, AttributeError):
-        return img
+
+    except (AttributeError, KeyError, IndexError):
+        # cases: image don't have getexif
+        pass
+    return img
