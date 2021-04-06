@@ -1,9 +1,13 @@
+from pathlib import Path
+
 import numpy as np
-from PIL import Image, ExifTags, ImageOps
+
+from PIL import ExifTags, Image, ImageOps
 
 
-def crop_square(image_to_crop):
-    """Crop image_to_crop to square by croping the largest dimension"""
+def crop_square(image_to_crop: Image) -> Image:
+    """Crop image_to_crop to square by cropping to the largest dimension.
+    """
     pleb_size = image_to_crop.size
     min_dim_i = np.argmin(pleb_size)
     min_dim = pleb_size[min_dim_i]
@@ -15,7 +19,8 @@ def crop_square(image_to_crop):
             pleb_size[0],
             (pleb_size[1] + min_dim) / 2,
         )
-    if min_dim_i == 1:
+    else:
+        # min_dim_i == 1:
         crop_box = (
             (pleb_size[0] - min_dim) / 2,
             0,
@@ -27,9 +32,12 @@ def crop_square(image_to_crop):
     return crop_image
 
 
-def open_exif(image_file):
-    """Opens image_file and takes into account the orientation tag to conserve the
-    correct orientation
+def open_exif(image_file: Path) -> Image:
+    """Opens image_file and takes into account the orientation tag to conserve
+    the correct orientation.
+
+    Returns
+        Opened image file.
     """
     img = Image.open(image_file)
     try:
