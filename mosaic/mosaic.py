@@ -1,79 +1,154 @@
 import logging
-from pathlib import Path
-from typing import List, Tuple, Union
+import os
+import random
+from functools import partial
+from multiprocessing import Pool as MpPool
+from typing import List, Optional, Tuple
 
 import numpy as np
-
 from PIL import Image
 from tqdm.auto import tqdm
 
-from .utils import crop_square
-from .utils import open_exif
+from .master import Master
+from .pool import Pool
 
 
-class Mosaic(object):
-    def __init__(
-        self,
-        master_img: Image,
-        tiles: List[Path],
-    ):
-        """Create a mosaic of the 'master_img' using the 'tiles'.
+# TODO: this does not work
+class MosaicUnstructured:
+    def __init__(self, master: Master, pool: Pool, workers: Optional[int] = None):
+        self.master = master
+        self.pool = pool
+        if workers is None:
+            workers = os.cpu_count()
+
+        self.workers = workers
+        self._log = logging.getLogger(__name__)
+
+    def build(self, shuffle: bool = True, n_points: int = 64):
+        """Construct the mosaic.
 
         Args:
-            master_img: PIL.Image instance of the master image to reconstruct
-                using the tiles.
-            tiles: List of file paths of the tiles with which to reconstruct
-                the master image.
+            shuffle: shuffle the order of the tiles before building the mosaic.
+            n_points: number of coordinate to try for each tile.
         """
-        self.master_img = master_img
-        self.tiles = tiles
+        tiles = self.pool.arrays
+        if shuffle:
+            self._log.info("Shuffling pool.")
+            tiles = random.sample(tiles, len(tiles))
+
+        mosaic_array = np.zeros_like(self.master.array)
+        with MpPool(self.workers) as pool:
+            for tile_array in tqdm(tiles, desc="Building"):
+                possible_ij = list(
+                    zip(
+                        np.random.choice(
+                            np.arange(
+                                0,
+                                self.master.array.shape[0] - tile_array.shape[0],
+                                dtype=np.uint,
+                            ),
+                            n_points,
+                            replace=False,
+                        ),
+                        np.random.choice(
+                            np.arange(
+                                0,
+                                self.master.array.shape[1] - tile_array.shape[1],
+                                dtype=np.uint,
+                            ),
+                            n_points,
+                            replace=False,
+                        ),
+                    )
+                )
+                out = pool.map(
+                    partial(self._loss, tile_array=tile_array),
+                    possible_ij,
+                    chunksize=len(possible_ij) // self.workers
+                    if self.workers
+                    else None,
+                )
+                min_ij = possible_ij[np.argmin(out)]
+                mosaic_array[
+                    min_ij[0] : int(min_ij[0] + tile_array.shape[0]),
+                    min_ij[1] : int(min_ij[1] + tile_array.shape[1]),
+                ] = tile_array
+        return Image.fromarray(mosaic_array.astype(np.uint8))
+
+    def _loss(self, ij: Tuple[int, int], tile_array: np.ndarray) -> float:
+        i, j = int(ij[0]), int(ij[1])
+        return np.linalg.norm(
+            (
+                self.master.array[
+                    i : i + tile_array.shape[0],
+                    j : j + tile_array.shape[1],
+                ]
+                - tile_array
+            ).reshape((-1, tile_array.shape[-1])),
+            ord=1,
+        )
+
+
+class MosaicGrid:
+    def __init__(
+        self,
+        master: Master,
+        pool: Pool,
+        n_appearances: int = 1,
+    ) -> None:
+        """Construct a regular grid mosaic.
+
+        Note:
+            The Pool's tiles should  all be the same size.
+
+        Args:
+            master: Master image to reconstruct.
+            pool: Tile image pool with which to reconstruct the Master image.
+            n_appearances: Number of times a tile can appear in the mosaic.
+
+        Examples:
+            Creating a Mosaic instance.
+
+            >>> Mosaic(master, pool, mosaic_size=(1280, 1280), tile_size=(64. 64))
+        """
         self._log = logging.getLogger(__name__)
-        self._log.info("Mosaic grid %s", self.grid)
-        self._log.info("Master size: %s", self.master_img.size)
-        self._log.info("Number of Tiles: %s", len(self.tiles))
-        self._log.info("Tile size: %s", self.tile_size)
-        self._log.info("Mosaic size: %s", self.mosaic_size)
+        self.master = master
+        if len(set([array.size for array in pool.arrays])) != 1:
+            raise ValueError("Pool tiles sizes are not identical.")
+        self.pool = pool
+        self.tile_size = self.pool.arrays[0].shape[:-1]
+        self.n_appearances = n_appearances
 
         self.master_coords, self.master_arrays = self.get_master_arrays()
-        self.tile_arrays = self.get_tile_arrays()
 
     @property
-    def tiles(self):
-        return self._tiles
+    def mosaic_size(self) -> Tuple[int, int]:
+        """The size of the mosaic image.
 
-    @tiles.setter
-    def tiles(self, value):
-        self._tiles = value
-        self._grid = [np.sqrt(len(self.tiles)) * i for i in [self.width_to_height, 1]]
-        self._tile_size = np.ceil(np.divide(self.master_img.size, self.grid)).astype(
-            int
+        It can be different from the master image size as an integer number of
+        tiles should fit within it.
+        """
+        return (
+            self.master.array.shape[0] - self.master.array.shape[0] % self.tile_size[0],
+            self.master.array.shape[1] - self.master.array.shape[1] % self.tile_size[1],
         )
-        self._mosaic_size = self.master_img.size - self.master_img.size % self.tile_size
 
     @property
-    def master_img(self):
-        return self._master_img
+    def grid(self) -> Tuple[int, int]:
+        """The shape of mosaic grid.
 
-    @master_img.setter
-    def master_img(self, value):
-        self._master_img = value
-        self._width_to_height = self.master_img.size[0] / self.master_img.size[1]
-
-    @property
-    def grid(self):
-        return self._grid
-
-    @property
-    def tile_size(self):
-        return self._tile_size
+        Returns:
+            The number of tiles along the vertical axis and the horizontal axis.
+        """
+        return (
+            self.master.array.shape[0] // self.tile_size[0],
+            self.master.array.shape[1] // self.tile_size[1],
+        )
 
     @property
-    def mosaic_size(self):
-        return self._mosaic_size
-
-    @property
-    def width_to_height(self):
-        return self._width_to_height
+    def n_leftover(self) -> int:
+        grid = self.grid
+        return len(self.pool) * self.n_appearances - grid[0] * grid[1]
 
     def get_master_arrays(self) -> Tuple[List[Tuple[int, int]], List[np.ndarray]]:
         """Divide the master image into tile sized arrays.
@@ -85,77 +160,90 @@ class Mosaic(object):
         """
         master_arrays = []
         master_coords = []
-        master_ar = np.array(self.master_img).astype("int16")
-        for x in range(0, self.mosaic_size[0], self.tile_size[0]):
-            for y in range(0, self.mosaic_size[1], self.tile_size[1]):
+        for x in range(0, self.mosaic_size[1], self.tile_size[1]):
+            for y in range(0, self.mosaic_size[0], self.tile_size[0]):
                 master_coords.append((x, y))
                 master_arrays.append(
-                    master_ar[y : y + self.tile_size[0], x : x + self.tile_size[1]],
+                    self.master.array[
+                        y : y + self.tile_size[0], x : x + self.tile_size[1]
+                    ],
                 )
         return master_coords, master_arrays
 
-    def _load_square(self, img_file: Path) -> Union[np.ndarray, None]:
-        """Load an image and crop it to square."""
-        try:
-            with open_exif(img_file) as tile:
-                image = crop_square(tile)
-                image = image.resize(self.tile_size, Image.ANTIALIAS)
-                if image.mode != self.master_img.mode:
-                    image = image.convert(mode=self.master_img.mode)
-            return np.array(image).astype("int16")
-        except (IndexError, OSError, ValueError):
-            self._log.error("Error skipping %s", img_file, exc_info=True)
-
-    def get_tile_arrays(self) -> List[np.ndarray]:
-        """Goes through the tile files, load the arrays and crop to square.
-
-        Returns:
-            A list of arrays of the tile images.
+    def _d_matix(self, ord: Optional[int] = None):
+        """Compute the distance matrix between all the master's tiles and the
+        pool tiles.
         """
-        tile_arrays = [
-            self._load_square(image)
-            for image in tqdm(self.tiles, desc="Loading and cropping tiles")
-        ]
-        return [array for array in tile_arrays if array is not None]
-
-    def build(self) -> Image:
-        """Builds the Photo Mosaic.
-
-        Returns:
-            The PIL.Image instance containing the mosaic.
-        """
-        # Init mosaic array.
-        n_channels = len(self.master_img.getbands())
-        if n_channels == 1:
-            mosaic = np.zeros(self.mosaic_size)
-        else:
-            mosaic = np.zeros((*self.mosaic_size, n_channels))
-
         # Compute the distance matrix.
-        d_matrix = np.zeros((len(self.master_arrays), len(self.tile_arrays)))
+        d_matrix = np.zeros((len(self.master_arrays), len(self.pool.arrays)))
+        self._log.debug("d_matrix shape: %s", d_matrix.shape)
         for i, tile in tqdm(
-            enumerate(self.tile_arrays),
-            total=len(self.tile_arrays),
+            enumerate(self.pool.arrays),
+            total=len(self.pool.arrays),
             desc="Building distance matrix",
         ):
             d_matrix[:, i] = [
-                np.linalg.norm(tile - master_tile) for master_tile in self.master_arrays
+                np.linalg.norm(
+                    (tile.astype(np.int16) - master_tile.astype(np.int16)).reshape(
+                        -1, 3
+                    ),
+                    ord=ord,
+                )
+                for master_tile in self.master_arrays
             ]
+        return d_matrix
 
-        d_matrix = np.ma.array(d_matrix)
+    def build(self, ord: Optional[int] = None) -> Image.Image:
+        """Construct the mosaic image.
+
+        Args:
+            ord: Order of the norm used to compute the distance. See np.linalg.norm.
+
+        Returns:
+            The PIL.Image instance of the mosaic.
+        """
+        mosaic = np.zeros((*self.mosaic_size, 3))
+
+        # Compute the distance matrix.
+        d_matrix = self._d_matix(ord=ord)
+
+        # Keep track of tiles and sub arrays.
+        placed_master_arrays = set()
+        placed_tiles = set()
+        n_appearances = [0] * len(self.pool)
+
         pbar = tqdm(total=d_matrix.shape[0], desc="Building mosaic")
-        while d_matrix[~d_matrix.mask].size != 0:
-            # while the distance matrix isn't completely masked
-            min_ind = np.where(d_matrix == np.min(d_matrix[~d_matrix.mask]))
-            for row, col in zip(min_ind[0], min_ind[1]):
-                if d_matrix.mask.shape != () and d_matrix.mask[row, col]:
-                    continue
-                self._log.debug("%s, row:%s, col:%s", np.min(d_matrix), row, col)
-                x, y = self.master_coords[row]
-                array = self.tile_arrays[col]
-                mosaic[y : y + self.tile_size[1], x : x + self.tile_size[0]] = array
-                d_matrix[:, col] = np.ma.masked
-                d_matrix[row, :] = np.ma.masked
-                pbar.update(1)
+        # from: https://stackoverflow.com/questions/29046162/numpy-array-loss-of-dimension-when-masking
+        sorted_master_arrays, sorted_tiles = np.unravel_index(
+            np.argsort(d_matrix, axis=None), d_matrix.shape
+        )
+        for master_array, tile in zip(sorted_master_arrays, sorted_tiles):
+            if master_array in placed_master_arrays:
+                self._log.debug("skipping master array: %s", master_array)
+                continue
+            if tile in placed_tiles:
+                self._log.debug("skipping tile: %s", tile)
+                continue
+            self._log.debug("%s, row:%s, col:%s", np.min(d_matrix), master_array, tile)
+            x, y = self.master_coords[master_array]
+            tile_array = self.pool.arrays[tile]
+            mosaic[y : y + self.tile_size[0], x : x + self.tile_size[1]] = tile_array
+            placed_master_arrays.add(master_array)
+            n_appearances[tile] += 1
+            if n_appearances[tile] == self.n_appearances:
+                placed_tiles.add(tile)
+            pbar.update(1)
         pbar.close()
         return Image.fromarray(np.uint8(mosaic))
+
+    def __repr__(self) -> str:
+        # indent these guys
+        master = repr(self.master).replace("\n", "\n    ")
+        pool = repr(self.pool).replace("\n", "\n    ")
+        return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
+    mosaic size: {self.mosaic_size}
+    mosaic grid: {self.grid}
+    tile size: {self.tile_size}
+    number of leftover tiles: {self.n_leftover}
+    {master}
+    {pool}"""

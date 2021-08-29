@@ -6,10 +6,12 @@ authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.10"
 Pillow = "^8.2.0"
 numpy = "^1.20.2"
 tqdm = "^4.60.0"
+matplotlib = "^3.4.1"
+colour-science = "^0.3.16"
 
 [tool.poetry.dev-dependencies]
 

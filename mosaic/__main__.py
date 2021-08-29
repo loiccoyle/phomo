@@ -5,16 +5,16 @@ from pathlib import Path
 import numpy as np
 
 from . import logger
-from .mosaic import Mosaic
-from .utils import open_exif
+from .mosaic import MosaicGrid
 
 
+# TODO: This is all outdated
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("master", help="Master image path.", type=str)
     parser.add_argument(
         "tile_dir", help="Directory containing the tile images.", type=str
     )
-    parser.add_argument("master", help="Master image path.", type=str)
     parser.add_argument("output", help="Output path.")
     parser.add_argument(
         "-f",
