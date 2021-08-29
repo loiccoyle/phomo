@@ -156,7 +156,7 @@ class Pool(Palette):
 class PoolTiles:
     """Helper interface to access of PIL.Image instances of the tiles."""
 
-    def __init__(self, arrays: List[np.ndarray]):
+    def __init__(self, arrays: List[np.ndarray]) -> None:
         self._arrays = arrays
 
     def __getitem__(self, index) -> Union[List[Image.Image], Image.Image]:

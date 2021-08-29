@@ -11,6 +11,7 @@ from tqdm.auto import tqdm
 
 from .master import Master
 from .pool import Pool
+from .grid import Grid
 
 
 # TODO: this does not work
@@ -89,7 +90,7 @@ class MosaicUnstructured:
         )
 
 
-class MosaicGrid:
+class MosaicRegular:
     def __init__(
         self,
         master: Master,
@@ -118,11 +119,10 @@ class MosaicGrid:
         self.pool = pool
         self.tile_size = self.pool.arrays[0].shape[:-1]
         self.n_appearances = n_appearances
-
-        self.master_coords, self.master_arrays = self.get_master_arrays()
+        self.grid = Grid(self.master, self.shape, self.tile_size)
 
     @property
-    def mosaic_size(self) -> Tuple[int, int]:
+    def shape(self) -> Tuple[int, int]:
         """The size of the mosaic image.
 
         It can be different from the master image size as an integer number of
@@ -134,48 +134,18 @@ class MosaicGrid:
         )
 
     @property
-    def grid(self) -> Tuple[int, int]:
-        """The shape of mosaic grid.
-
-        Returns:
-            The number of tiles along the vertical axis and the horizontal axis.
-        """
-        return (
-            self.master.array.shape[0] // self.tile_size[0],
-            self.master.array.shape[1] // self.tile_size[1],
-        )
-
-    @property
     def n_leftover(self) -> int:
-        grid = self.grid
-        return len(self.pool) * self.n_appearances - grid[0] * grid[1]
-
-    def get_master_arrays(self) -> Tuple[List[Tuple[int, int]], List[np.ndarray]]:
-        """Divide the master image into tile sized arrays.
-
-        Returns:
-            A list containing the the pixel coordinates of the top left corner
-            of each tile.
-            A list containing the np.ndarrays of the master image.
-        """
-        master_arrays = []
-        master_coords = []
-        for x in range(0, self.mosaic_size[1], self.tile_size[1]):
-            for y in range(0, self.mosaic_size[0], self.tile_size[0]):
-                master_coords.append((x, y))
-                master_arrays.append(
-                    self.master.array[
-                        y : y + self.tile_size[0], x : x + self.tile_size[1]
-                    ],
-                )
-        return master_coords, master_arrays
+        return (
+            len(self.pool) * self.n_appearances
+            - self.grid.shape[0] * self.grid.shape[1]
+        )
 
     def _d_matix(self, ord: Optional[int] = None):
         """Compute the distance matrix between all the master's tiles and the
         pool tiles.
         """
         # Compute the distance matrix.
-        d_matrix = np.zeros((len(self.master_arrays), len(self.pool.arrays)))
+        d_matrix = np.zeros((len(self.grid.slices), len(self.pool.arrays)))
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
         for i, tile in tqdm(
             enumerate(self.pool.arrays),
@@ -184,12 +154,13 @@ class MosaicGrid:
         ):
             d_matrix[:, i] = [
                 np.linalg.norm(
-                    (tile.astype(np.int16) - master_tile.astype(np.int16)).reshape(
-                        -1, 3
-                    ),
+                    (
+                        tile.astype(np.int16)
+                        - self.master.array[slices[0], slices[1]].astype(np.int16)
+                    ).reshape(-1, 3),
                     ord=ord,
                 )
-                for master_tile in self.master_arrays
+                for slices in self.grid.slices
             ]
         return d_matrix
 
@@ -202,7 +173,7 @@ class MosaicGrid:
         Returns:
             The PIL.Image instance of the mosaic.
         """
-        mosaic = np.zeros((*self.mosaic_size, 3))
+        mosaic = np.zeros((*self.shape, 3))
 
         # Compute the distance matrix.
         d_matrix = self._d_matix(ord=ord)
@@ -214,21 +185,21 @@ class MosaicGrid:
 
         pbar = tqdm(total=d_matrix.shape[0], desc="Building mosaic")
         # from: https://stackoverflow.com/questions/29046162/numpy-array-loss-of-dimension-when-masking
-        sorted_master_arrays, sorted_tiles = np.unravel_index(
+        sorted_master_slices_i, sorted_tiles = np.unravel_index(
             np.argsort(d_matrix, axis=None), d_matrix.shape
         )
-        for master_array, tile in zip(sorted_master_arrays, sorted_tiles):
-            if master_array in placed_master_arrays:
-                self._log.debug("skipping master array: %s", master_array)
+        for slices_i, tile in zip(sorted_master_slices_i, sorted_tiles):
+            if slices_i in placed_master_arrays:
+                self._log.debug("skipping master array: %s", slices_i)
                 continue
             if tile in placed_tiles:
                 self._log.debug("skipping tile: %s", tile)
                 continue
-            self._log.debug("%s, row:%s, col:%s", np.min(d_matrix), master_array, tile)
-            x, y = self.master_coords[master_array]
+            self._log.debug("%s, row:%s, col:%s", np.min(d_matrix), slices_i, tile)
+            slices = self.grid.slices[slices_i]
             tile_array = self.pool.arrays[tile]
-            mosaic[y : y + self.tile_size[0], x : x + self.tile_size[1]] = tile_array
-            placed_master_arrays.add(master_array)
+            mosaic[slices[0], slices[1]] = tile_array
+            placed_master_arrays.add(slices_i)
             n_appearances[tile] += 1
             if n_appearances[tile] == self.n_appearances:
                 placed_tiles.add(tile)
@@ -240,10 +211,11 @@ class MosaicGrid:
         # indent these guys
         master = repr(self.master).replace("\n", "\n    ")
         pool = repr(self.pool).replace("\n", "\n    ")
+        grid = repr(self.grid).replace("\n", "\n    ")
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
-    mosaic size: {self.mosaic_size}
-    mosaic grid: {self.grid}
+    mosaic shape: {self.shape}
     tile size: {self.tile_size}
     number of leftover tiles: {self.n_leftover}
+    {grid}
     {master}
     {pool}"""

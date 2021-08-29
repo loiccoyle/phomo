@@ -58,7 +58,7 @@ class Master(Palette):
             array = np.stack([array] * 3, -1)
         return cls(array, *args, **kwargs)
 
-    def __init__(self, array: np.ndarray):
+    def __init__(self, array: np.ndarray)->None:
         """The master image.
 
         Args:

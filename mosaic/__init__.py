@@ -1,7 +1,7 @@
 import logging
 
 from .master import Master
-from .mosaic import MosaicGrid
+from .mosaic import MosaicRegular
 from .pool import Pool
 
 logger = logging.getLogger(__name__)
