@@ -3,15 +3,16 @@ import os
 import random
 from functools import partial
 from multiprocessing import Pool as MpPool
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 from PIL import Image
 from tqdm.auto import tqdm
 
+from .grid import Grid
 from .master import Master
 from .pool import Pool
-from .grid import Grid
+from .utils import resize_array
 
 
 # TODO: this does not work
@@ -90,7 +91,7 @@ class MosaicUnstructured:
         )
 
 
-class MosaicRegular:
+class Mosaic:
     def __init__(
         self,
         master: Master,
@@ -117,7 +118,7 @@ class MosaicRegular:
         if len(set([array.size for array in pool.arrays])) != 1:
             raise ValueError("Pool tiles sizes are not identical.")
         self.pool = pool
-        self.tile_size = self.pool.arrays[0].shape[:-1]
+        self.tile_size = (self.pool.arrays[0].shape[0], self.pool.arrays[0].shape[1])
         self.n_appearances = n_appearances
         self.grid = Grid(self.master, self.shape, self.tile_size)
 
@@ -135,10 +136,7 @@ class MosaicRegular:
 
     @property
     def n_leftover(self) -> int:
-        return (
-            len(self.pool) * self.n_appearances
-            - self.grid.shape[0] * self.grid.shape[1]
-        )
+        return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
     def _d_matix(self, ord: Optional[int] = None):
         """Compute the distance matrix between all the master's tiles and the
@@ -152,15 +150,19 @@ class MosaicRegular:
             total=len(self.pool.arrays),
             desc="Building distance matrix",
         ):
+            arrays = []
+            for slices in self.grid.slices:
+                array = self.master.array[slices[0], slices[1]]
+                if array.shape != tile.shape:
+                    array = resize_array(array, tile.shape[:-1][::-1])
+                arrays.append(array)
+
             d_matrix[:, i] = [
                 np.linalg.norm(
-                    (
-                        tile.astype(np.int16)
-                        - self.master.array[slices[0], slices[1]].astype(np.int16)
-                    ).reshape(-1, 3),
+                    (tile.astype(np.int16) - array.astype(np.int16)).reshape(-1, 3),
                     ord=ord,
                 )
-                for slices in self.grid.slices
+                for array in arrays
             ]
         return d_matrix
 
@@ -198,6 +200,15 @@ class MosaicRegular:
             self._log.debug("%s, row:%s, col:%s", np.min(d_matrix), slices_i, tile)
             slices = self.grid.slices[slices_i]
             tile_array = self.pool.arrays[tile]
+            # if the grid has been subdivided then the tile should be shrunk to
+            # the size of the subdivision
+            array_size = (
+                slices[1].stop - slices[1].start,
+                slices[0].stop - slices[0].start,
+            )
+            if tile_array.shape[:-1] != array_size[::-1]:
+                tile_array = resize_array(tile_array, array_size)
+
             mosaic[slices[0], slices[1]] = tile_array
             placed_master_arrays.add(slices_i)
             n_appearances[tile] += 1

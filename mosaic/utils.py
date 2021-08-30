@@ -123,6 +123,10 @@ def open_img_file(
     return img
 
 
+def resize_array(array: np.ndarray, size: Tuple[int, int]) -> np.ndarray:
+    return np.asarray(Image.fromarray(array).resize(size))
+
+
 def to_ucs(array_sRGB: np.ndarray) -> np.ndarray:
     """Convert image pixel array to UCS.
 

@@ -1,7 +1,8 @@
-from typing import Tuple
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 
 def plot_palette(
@@ -21,3 +22,40 @@ def plot_palette(
         ax.set_title(f"Channel {i+1}")
     fig.tight_layout()
     return fig, axes
+
+
+def _tile_center(tile: Tuple[slice, slice]) -> Tuple[int, int]:
+    """Compute (y, x) center of tile.
+
+    Returns:
+        Coords of the center of the slice.
+    """
+    return (tile[0].stop + tile[0].start) // 2, (tile[1].stop + tile[1].start) // 2
+
+
+def plot_grid(
+    image: np.ndarray,
+    slices: List[Tuple[slice, slice]],
+    colour: Tuple[int, int, int] = (255, 255, 255),
+) -> Image.Image:
+    """Draw the tile edges on a copy of image. Make a dot at each tile center.
+
+    This is a utility for inspecting a tile layout, not a necessary step in
+    the mosaic-building process.
+
+    Args:
+        image: image array.
+        slices: list of pairs of slices.
+        colour: value to "draw" onto ``image`` at tile boundaries
+
+    Returns:
+        annotated_image: array
+    """
+    annotated_image = image.copy()
+    for y, x in slices:
+        annotated_image[y.start : y.stop, x.start] = colour  # tile edges
+        annotated_image[y.start : y.stop, x.stop] = colour  # tile edges
+        annotated_image[y.start, x.start : x.stop] = colour  # tile edges
+        annotated_image[y.stop, x.start : x.stop] = colour  # tile edges
+        annotated_image[_tile_center((y, x))] = colour  # dot at center
+    return Image.fromarray(annotated_image)
