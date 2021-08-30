@@ -150,6 +150,7 @@ class Mosaic:
             total=len(self.pool.arrays),
             desc="Building distance matrix",
         ):
+            # TODO: this can be optimized
             arrays = []
             for slices in self.grid.slices:
                 array = self.master.array[slices[0], slices[1]]
@@ -209,6 +210,8 @@ class Mosaic:
             if tile_array.shape[:-1] != array_size[::-1]:
                 tile_array = resize_array(tile_array, array_size)
 
+            # TODO: will need to substract the remainders here when centering
+            # the mosaic
             mosaic[slices[0], slices[1]] = tile_array
             placed_master_arrays.add(slices_i)
             n_appearances[tile] += 1
@@ -224,9 +227,10 @@ class Mosaic:
         pool = repr(self.pool).replace("\n", "\n    ")
         grid = repr(self.grid).replace("\n", "\n    ")
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
+    n_appearances: {self.n_appearances}
     mosaic shape: {self.shape}
     tile size: {self.tile_size}
-    number of leftover tiles: {self.n_leftover}
+    leftover tiles: {self.n_leftover}
     {grid}
     {master}
     {pool}"""

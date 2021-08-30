@@ -142,4 +142,4 @@ class Master(Palette):
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
     space: {self.space}
-    size: {self.array.shape}"""
+    shape: {self.array.shape}"""

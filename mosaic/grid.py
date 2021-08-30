@@ -38,6 +38,7 @@ class Grid:
             self._slices = list(self._compute_slices())
         return self._slices
 
+    # TODO: center the mosaic in the master img
     def _compute_slices(self) -> Iterator[Tuple[slice, slice]]:
         for x in range(0, self.mosaic_shape[1], self.tile_size[1]):
             for y in range(0, self.mosaic_shape[0], self.tile_size[0]):
@@ -100,7 +101,7 @@ class Grid:
     def _yield_subdivide(self, threshold: float) -> Iterator[Tuple[slice, slice]]:
         for i, slices in enumerate(self.slices):
             pixels = self.master.array[slices[0], slices[1]].reshape(-1, 3)
-            contrast = np.mean(np.std(pixels, axis=0))
+            contrast = np.mean(np.std(pixels / 255, axis=0))
             self._log.debug("Contrast slice %s: %s", i, contrast)
             if contrast > threshold:
                 self._log.debug("Dividing slice %s", i)
@@ -116,7 +117,7 @@ class Grid:
 
         Args:
             threshold: contrast threshold at which to divide the slice into 4
-                smaller slices.
+                smaller slices. Between 0 and 1.
         """
         self._slices = list(self._yield_subdivide(threshold))
         self.thresholds.append(threshold)
