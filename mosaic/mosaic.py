@@ -138,33 +138,33 @@ class Mosaic:
     def n_leftover(self) -> int:
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
-    def _d_matix(self, ord: Optional[int] = None):
+    def _d_matix(self, ord: Optional[int] = None) -> np.ndarray:
         """Compute the distance matrix between all the master's tiles and the
         pool tiles.
+
+        Returns:
+            Distance matrix, shape: (number of master arrays, number of tiles in the pool).
         """
         # Compute the distance matrix.
         d_matrix = np.zeros((len(self.grid.slices), len(self.pool.arrays)))
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
-        for i, tile in tqdm(
-            enumerate(self.pool.arrays),
-            total=len(self.pool.arrays),
+
+        for i, slices in tqdm(
+            enumerate(self.grid.slices),
+            total=len(self.grid.slices),
             desc="Building distance matrix",
         ):
-            # TODO: this can be optimized
-            arrays = []
-            for slices in self.grid.slices:
-                array = self.master.array[slices[0], slices[1]]
-                if array.shape != tile.shape:
-                    array = resize_array(array, tile.shape[:-1][::-1])
-                arrays.append(array)
-
-            d_matrix[:, i] = [
+            array = self.master.array[slices[0], slices[1]]
+            if array[:-1].shape != self.tile_size:
+                array = resize_array(array, (self.tile_size[1], self.tile_size[0]))
+            d_matrix[i, :] = [
                 np.linalg.norm(
-                    (tile.astype(np.int16) - array.astype(np.int16)).reshape(-1, 3),
+                    (np.int16(tile) - np.int16(array)).reshape(-1, 3),
                     ord=ord,
                 )
-                for array in arrays
+                for tile in self.pool.arrays
             ]
+
         return d_matrix
 
     def build(self, ord: Optional[int] = None) -> Image.Image:
