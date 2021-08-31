@@ -1,5 +1,9 @@
 # Mosaic
 
+<p align="center">
+  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+</p>
+
 ## Instalation
 
 Requires python 3
@@ -13,24 +17,37 @@ pip install .
 ```
 
 ## Usage
+
 Once it is installed, you can use the `mosaic` command.
 
 ```
-usage: mosaic [-h] [-f USAGE_FACTOR] [-u UPSCALE] [-s] [-v] [-b] tile_dir master output
+usage: mosaic [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]]
+              [-C TILE_CROP_RATIO] [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g]
+              [-d SUBDIVISIONS [SUBDIVISIONS ...]]
+              master tile_dir
 
 positional arguments:
-  tile_dir              Directory containing the tile images.
   master                Master image path.
-  output                Output path.
+  tile_dir              Directory containing the tile images.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f USAGE_FACTOR, --usage_factor USAGE_FACTOR
-                        Ratio of tile images to use.
-  -u UPSCALE, --upscale UPSCALE
-                        Master image upscale coefficient.
-  -s, --show            Show mosaic after building.
+  -o OUTPUT, --output OUTPUT
+                        Mosiac output path.
+  -c MASTER_CROP_RATIO, --master-crop-ratio MASTER_CROP_RATIO
+                        Crop the master image to width/height ratio.
+  -s MASTER_SIZE [MASTER_SIZE ...], --master-size MASTER_SIZE [MASTER_SIZE ...]
+                        Resize master image to width, height.
+  -C TILE_CROP_RATIO, --tile-crop-ratio TILE_CROP_RATIO
+                        Crop the tile images to width/height ratio.
+  -S TILE_SIZE [TILE_SIZE ...], --tile-size TILE_SIZE [TILE_SIZE ...]
+                        Resize tile images to width, height.
+  -n N_APPEARANCES, --n-appearances N_APPEARANCES
+                        The number of times a tile can appear in the mosaic.
   -v, --verbose         Verbosity.
   -b, --black_and_white
                         Black and white.
+  -g, --show-grid       Show the tile grid, don't build the mosiac.
+  -d SUBDIVISIONS [SUBDIVISIONS ...], --subdivisions SUBDIVISIONS [SUBDIVISIONS ...]
+                        Subdivision thresholds.
 ```
