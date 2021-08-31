@@ -138,7 +138,7 @@ class Mosaic:
     def n_leftover(self) -> int:
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
-    def _d_matix(self, ord: Optional[int] = None) -> np.ndarray:
+    def _d_matrix(self, ord: Optional[int] = None) -> np.ndarray:
         """Compute the distance matrix between all the master's tiles and the
         pool tiles.
 
@@ -179,7 +179,7 @@ class Mosaic:
         mosaic = np.zeros((*self.shape, 3))
 
         # Compute the distance matrix.
-        d_matrix = self._d_matix(ord=ord)
+        d_matrix = self._d_matrix(ord=ord)
 
         # Keep track of tiles and sub arrays.
         placed_master_arrays = set()
