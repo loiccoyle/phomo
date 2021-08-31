@@ -131,5 +131,12 @@ class Grid:
     thresholds: {self.thresholds}"""
 
     def plot(self, colour: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
-        """Plot the grid layout."""
+        """Plot the grid layout.
+
+        Args:
+            colour: tuple of RGB values, between 0 and 255.
+
+        Returns:
+            Image of the grid overlayed atop the master image.
+        """
         return plot_grid(self.master.array, self.slices, colour)
