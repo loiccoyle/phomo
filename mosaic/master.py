@@ -69,7 +69,7 @@ class Master(Palette):
         """
         self.array = array
         self._log = logging.getLogger(__name__)
-        self._log.info("Shape: %s", self.array.shape)
+        self._log.info("master shape: %s", self.array.shape)
         self._space = "rgb"
 
     @property

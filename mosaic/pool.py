@@ -111,7 +111,7 @@ class Pool(Palette):
     @staticmethod
     def _load_files(files: List[Path], **kwargs) -> List[np.ndarray]:
         arrays = []
-        for tile in tqdm(files, desc="Loading arrays"):
+        for tile in tqdm(files, desc="Loading tiles"):
             img = open_img_file(tile, **kwargs)
             array = np.asarray(img)
             # make sure the arrays have 3 channels even in black and white

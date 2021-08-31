@@ -28,7 +28,6 @@ class Grid:
         self.thresholds = []
         self._log = logging.getLogger(__name__)
         self._slices = None
-        self._shape = None
 
     @property
     def slices(self) -> List[Tuple[slice, slice]]:
@@ -99,15 +98,18 @@ class Grid:
         )
 
     def _yield_subdivide(self, threshold: float) -> Iterator[Tuple[slice, slice]]:
+        n_divisions = 0
         for i, slices in enumerate(self.slices):
             pixels = self.master.array[slices[0], slices[1]].reshape(-1, 3)
             contrast = np.mean(np.std(pixels / 255, axis=0))
-            self._log.debug("Contrast slice %s: %s", i, contrast)
+            self._log.debug("Contrast slice %i: %f", i, contrast)
             if contrast > threshold:
-                self._log.debug("Dividing slice %s", i)
+                self._log.debug("Dividing slice %i", i)
                 yield from self._subdivide(slices)
+                n_divisions += 1
             else:
                 yield slices
+        self._log.info("Subdivided %i tiles.", n_divisions)
 
     def subdivide(self, threshold: float) -> None:
         """Subdivide grid based on contrast.
@@ -119,6 +121,7 @@ class Grid:
             threshold: contrast threshold at which to divide the slice into 4
                 smaller slices. Between 0 and 1.
         """
+        self._log.info("Subdividing with threshold %f", threshold)
         self._slices = list(self._yield_subdivide(threshold))
         self.thresholds.append(threshold)
 

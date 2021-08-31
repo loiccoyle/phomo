@@ -192,13 +192,8 @@ class Mosaic:
             np.argsort(d_matrix, axis=None), d_matrix.shape
         )
         for slices_i, tile in zip(sorted_master_slices_i, sorted_tiles):
-            if slices_i in placed_master_arrays:
-                self._log.debug("skipping master array: %s", slices_i)
+            if slices_i in placed_master_arrays or tile in placed_tiles:
                 continue
-            if tile in placed_tiles:
-                self._log.debug("skipping tile: %s", tile)
-                continue
-            self._log.debug("%s, row:%s, col:%s", np.min(d_matrix), slices_i, tile)
             slices = self.grid.slices[slices_i]
             tile_array = self.pool.arrays[tile]
             # if the grid has been subdivided then the tile should be shrunk to
