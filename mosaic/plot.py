@@ -24,15 +24,6 @@ def plot_palette(
     return fig, axes
 
 
-def _tile_center(tile: Tuple[slice, slice]) -> Tuple[int, int]:
-    """Compute (y, x) center of tile.
-
-    Returns:
-        Coords of the center of the slice.
-    """
-    return (tile[0].stop + tile[0].start) // 2, (tile[1].stop + tile[1].start) // 2
-
-
 def plot_grid(
     image: np.ndarray,
     slices: List[Tuple[slice, slice]],
@@ -49,13 +40,12 @@ def plot_grid(
         colour: value to "draw" onto ``image`` at tile boundaries
 
     Returns:
-        annotated_image: array
+        Image with tile borders highlitghted in ``colour``.
     """
     annotated_image = image.copy()
     for y, x in slices:
-        annotated_image[y.start : y.stop, x.start] = colour  # tile edges
-        annotated_image[y.start : y.stop, x.stop] = colour  # tile edges
-        annotated_image[y.start, x.start : x.stop] = colour  # tile edges
-        annotated_image[y.stop, x.start : x.stop] = colour  # tile edges
-        annotated_image[_tile_center((y, x))] = colour  # dot at center
+        annotated_image[y, x.start] = colour  # tile edges
+        annotated_image[y, x.stop - 1] = colour  # tile edges
+        annotated_image[y.start, x] = colour  # tile edges
+        annotated_image[y.stop - 1, x] = colour  # tile edges
     return Image.fromarray(annotated_image)
