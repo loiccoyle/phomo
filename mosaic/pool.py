@@ -14,7 +14,7 @@ class Pool(Palette):
     @classmethod
     def from_dir(
         cls,
-        tile_dir: Path,
+        tile_dir: Union[str, Path],
         *args,
         crop_ratio: Optional[float] = None,
         tile_size: Optional[Tuple[int, int]] = None,
@@ -29,6 +29,8 @@ class Pool(Palette):
             image_size: resize the image to the provided size, width followed by height.
             convert: convert the image to the provided mode. See PIL Modes.
         """
+        if not isinstance(tile_dir, Path):
+            tile_dir = Path(tile_dir)
         if not tile_dir.is_dir():
             raise ValueError(f"'{tile_dir}' is not a directory.")
         arrays = cls._load_files(
