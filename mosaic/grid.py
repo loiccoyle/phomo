@@ -13,18 +13,18 @@ class Grid:
         self,
         master: Master,
         mosaic_shape: Tuple[int, int],
-        tile_size: Tuple[int, int],
+        tile_shape: Tuple[int, int],
     ) -> None:
         """Mosaic tile grid.
 
         Args:
             master: Master image.
             mosaic_shape: mosaic image shape.
-            tile_size: size of the tiles.
+            tile_shape: size of the tiles.
         """
         self.master = master
         self.mosaic_shape = mosaic_shape
-        self.tile_size = tile_size
+        self.tile_shape = tile_shape
         self.thresholds = []
         self._log = logging.getLogger(__name__)
         self._slices = None
@@ -39,9 +39,9 @@ class Grid:
 
     # TODO: center the mosaic in the master img
     def _compute_slices(self) -> Iterator[Tuple[slice, slice]]:
-        for x in range(0, self.mosaic_shape[1], self.tile_size[1]):
-            for y in range(0, self.mosaic_shape[0], self.tile_size[0]):
-                yield (slice(y, y + self.tile_size[0]), slice(x, x + self.tile_size[1]))
+        for x in range(0, self.mosaic_shape[1], self.tile_shape[1]):
+            for y in range(0, self.mosaic_shape[0], self.tile_shape[0]):
+                yield (slice(y, y + self.tile_shape[0]), slice(x, x + self.tile_shape[1]))
 
     @staticmethod
     def _subdivide(

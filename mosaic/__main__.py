@@ -1,13 +1,22 @@
 import argparse
 import logging
+import sys
 from pathlib import Path
+from typing import List
 
 from . import logger
 from .mosaic import Master, Mosaic, Pool
 
 
-# TODO: This is all outdated
-def main():
+def parse_args(args: List[str]) -> argparse.Namespace:
+    """Parse the command line arguments.
+
+    Args:
+        args: list of command line arguments.
+
+    Returns:
+        argparse Namespace of the parsed arguments.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("master", help="Master image path.", type=str)
     parser.add_argument(
@@ -72,7 +81,11 @@ def main():
         default=[],
         type=float,
     )
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main():
+    args = parse_args(sys.argv[1:])
 
     if args.verbose > 0:
         verbose_map = {1: logging.INFO, 2: logging.DEBUG}
@@ -136,7 +149,3 @@ def main():
             mosaic_im.show()
         else:
             mosaic_im.save(args.output)
-
-
-if __name__ == "__main__":
-    main()

@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -9,21 +8,19 @@ from PIL.ImageOps import exif_transpose
 from tqdm.auto import tqdm
 
 
-def rainbow_of_squares(target_dir: Path, shape=(10, 10), range_params=(0, 256, 15)):
-    """
-    Generate 5832 small solid-color tiles for experimentation and testing.
-    Parameters
-    ----------
-    target_dir : string
-    shape : tuple, optional
-        default is (10, 10)
-    range_params : tuple, optional
-        Passed to ``range()`` to stride through each color channel.
-        Default is ``(0, 256, 15)``.
+def rainbow_of_squares(
+        target_dir: Path, size: Tuple[int, int]=(10, 10), range_params=(0, 256, 15)
+) -> None:
+    """Generate 5832 small solid-color tiles for experimentation and testing.
+
+    Args:
+        target_dir: direcotry in which to place the rainbow tiles.
+        size: size of the images, width followed by height.
+        range_params: Passed to ``range()`` to stride through each color channel.
     """
     target_dir.mkdir(exist_ok=True)
     with tqdm(total=3 * len(range(*range_params))) as pbar:
-        canvas = np.ones(shape + (3,))
+        canvas = np.ones((*size[::-1], 3))
         for r in range(*range_params):
             for g in range(*range_params):
                 for b in range(*range_params):
@@ -97,7 +94,7 @@ def crop_to_ratio(image: Image.Image, ratio: float = 1) -> Image.Image:
 def open_img_file(
     img_file: Path,
     crop_ratio: Optional[float] = None,
-    img_size: Optional[Tuple[int, int]] = None,
+    size: Optional[Tuple[int, int]] = None,
     convert: Optional[str] = None,
 ) -> Image.Image:
     """Open an image file with some extra bells and whistles.
@@ -105,7 +102,7 @@ def open_img_file(
     Args:
         img_file: path to the image.
         crop_ratio: width to height to which to crop the image.
-        img_size: resize image.
+        size: resize image.
         convert: convert the image to the provided mode. See PIL image modes.
 
     Returns:
@@ -115,8 +112,8 @@ def open_img_file(
         img = exif_transpose(img)
         if crop_ratio is not None:
             img = crop_to_ratio(img, crop_ratio)
-        if img_size is not None:
-            img = img.resize(img_size)
+        if size is not None:
+            img = img.resize(size)
         if convert is not None:
             img = img.convert(convert)
         else:
@@ -124,8 +121,20 @@ def open_img_file(
     return img
 
 
-def resize_array(array: np.ndarray, size: Tuple[int, int]) -> np.ndarray:
-    return np.asarray(Image.fromarray(array).resize(size))
+def resize_array(
+    array: np.ndarray, size: Tuple[int, int], *args, **kwargs
+) -> np.ndarray:
+    """Resize an array representing and image.
+
+    Args:
+        array: array containing the images data.
+        size: desired size, width followed by height.
+        *args, **kwargs: passed to `PIL.Image.resize`.
+
+    Returns:
+        Array containing the resized image data.
+    """
+    return np.asarray(Image.fromarray(array).resize(size, *args, **kwargs))
 
 
 def to_ucs(array_sRGB: np.ndarray) -> np.ndarray:

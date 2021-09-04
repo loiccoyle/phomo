@@ -111,27 +111,32 @@ class Mosaic:
         Examples:
             Creating a Mosaic instance.
 
-            >>> Mosaic(master, pool, mosaic_size=(1280, 1280), tile_size=(64. 64))
+            >>> Mosaic(master, pool, n_appearances=1)
         """
         self._log = logging.getLogger(__name__)
         self.master = master
         if len(set([array.size for array in pool.arrays])) != 1:
             raise ValueError("Pool tiles sizes are not identical.")
         self.pool = pool
-        self.tile_size = (self.pool.arrays[0].shape[0], self.pool.arrays[0].shape[1])
+        self.tile_shape = (self.pool.arrays[0].shape[0], self.pool.arrays[0].shape[1])
         self.n_appearances = n_appearances
-        self.grid = Grid(self.master, self.shape, self.tile_size)
+        self.grid = Grid(self.master, (self.size[1], self.size[0]), self.tile_shape)
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def size(self) -> Tuple[int, int]:
         """The size of the mosaic image.
 
         It can be different from the master image size as an integer number of
         tiles should fit within it.
+
+        Returns:
+            The width and height of the mosaic image.
         """
         return (
-            self.master.array.shape[0] - self.master.array.shape[0] % self.tile_size[0],
-            self.master.array.shape[1] - self.master.array.shape[1] % self.tile_size[1],
+            self.master.array.shape[1]
+            - self.master.array.shape[1] % self.tile_shape[1],
+            self.master.array.shape[0]
+            - self.master.array.shape[0] % self.tile_shape[0],
         )
 
     @property
@@ -155,8 +160,8 @@ class Mosaic:
             desc="Building distance matrix",
         ):
             array = self.master.array[slices[0], slices[1]]
-            if array[:-1].shape != self.tile_size:
-                array = resize_array(array, (self.tile_size[1], self.tile_size[0]))
+            if array[:-1].shape != self.tile_shape:
+                array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
             d_matrix[i, :] = [
                 np.linalg.norm(
                     (np.int16(tile) - np.int16(array)).reshape(-1, 3),
@@ -176,7 +181,7 @@ class Mosaic:
         Returns:
             The PIL.Image instance of the mosaic.
         """
-        mosaic = np.zeros((*self.shape, 3))
+        mosaic = np.zeros((self.size[1], self.size[0], 3))
 
         # Compute the distance matrix.
         d_matrix = self._d_matrix(ord=ord)
@@ -223,8 +228,8 @@ class Mosaic:
         grid = repr(self.grid).replace("\n", "\n    ")
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
     n_appearances: {self.n_appearances}
-    mosaic shape: {self.shape}
-    tile size: {self.tile_size}
+    mosaic size: {self.size}
+    tile shape: {self.tile_shape}
     leftover tiles: {self.n_leftover}
     {grid}
     {master}

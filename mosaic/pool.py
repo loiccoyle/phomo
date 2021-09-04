@@ -26,7 +26,7 @@ class Pool(Palette):
         Args:
             tile_dir: path to directory containing the images.
             crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
-            image_size: resize the image to the provided size, width followed by height.
+            tile_size: resize the image to the provided size, width followed by height.
             convert: convert the image to the provided mode. See PIL Modes.
         """
         if not isinstance(tile_dir, Path):
@@ -36,7 +36,7 @@ class Pool(Palette):
         arrays = cls._load_files(
             list(tile_dir.glob("*")),
             crop_ratio=crop_ratio,
-            img_size=tile_size,
+            size=tile_size,
             convert=convert,
         )
         return cls(arrays, *args, **kwargs)
@@ -56,11 +56,11 @@ class Pool(Palette):
         Args:
             files: list of paths to the tile images.
             crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
-            image_size: resize the image to the provided size, width followed by height.
+            tile_size: resize the image to the provided size, width followed by height.
             convert: convert the image to the provided mode. See PIL Modes.
         """
         arrays = cls._load_files(
-            files, crop_ratio=crop_ratio, img_size=tile_size, convert=convert
+            files, crop_ratio=crop_ratio, size=tile_size, convert=convert
         )
         return cls(arrays, *args, **kwargs)
 

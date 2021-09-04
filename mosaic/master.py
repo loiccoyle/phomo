@@ -38,7 +38,7 @@ class Master(Palette):
             >>> Master.from_file("master.png", crop_ratio=1, img_size=(1280, 1280), convert="L")
         """
         img = open_img_file(
-            master_image_file, crop_ratio=crop_ratio, img_size=img_size, convert=convert
+            master_image_file, crop_ratio=crop_ratio, size=img_size, convert=convert
         )
         return cls.from_image(img, *args, **kwargs)
 
@@ -120,6 +120,9 @@ class Master(Palette):
 
     def match(self, pool: Pool) -> "Master":
         """Match the colour distribution of the master with the pool.
+
+        Note:
+            Currently broken.
 
         Args:
             pool: Pool instance to match the colour distribution.

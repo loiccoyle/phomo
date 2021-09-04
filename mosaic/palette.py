@@ -10,6 +10,14 @@ class Palette:
     pixels: np.ndarray
 
     def palette(self, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
+        """Compute the colour distribution.
+
+        Args:
+            **kwargs: passed to `numpy.histogram`.
+
+        Returns:
+            Histogram edges and counts.
+        """
         bins = kwargs.pop("bins", 256)
         values = []
         bin_edges = []
@@ -22,6 +30,11 @@ class Palette:
         return bin_edges, values
 
     def cdfs(self):
+        """Compute the cumulative distribution functions of the colours ditributions.
+
+        Returns:
+            Histogram edges and counts.
+        """
         bins, frequencies = self.palette()
         return bins, self._cdfs(frequencies)
 
@@ -33,6 +46,14 @@ class Palette:
         return cdfs
 
     def plot(self, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        """Plot the colour distribution.
+
+        Args:
+            **kwargs: passed to `mosiac.plot.plot_palette`.
+
+        Returns:
+            The figure and axe objects.
+        """
         return plot_palette(*self.palette(), **kwargs)
 
     def _match_function(self, other: "Palette") -> Callable:
