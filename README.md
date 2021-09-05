@@ -6,8 +6,9 @@
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
-`phomo` lets you create [photographc mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic). It arranges the tile images so as to recreate a master image. To acheive this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences. Once this distance matrix is computed, each tile is assigned to the region of the master with the smallest distance between the colour distributions.
-
+`phomo` lets you create [photographc mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic).
+It arranges the tile images to best recreate a master image. To acheive this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences.
+Once this distance matrix is computed, each tile is assigned to the region of the master with the smallest distance between the colour distributions.
 
 ## Instalation
 
@@ -62,3 +63,11 @@ optional arguments:
   -d SUBDIVISIONS [SUBDIVISIONS ...], --subdivisions SUBDIVISIONS [SUBDIVISIONS ...]
                         Subdivision thresholds.
 ```
+
+## Note
+
+The grid subdivision and colour space stuff (currently broken) was inspired by [photomosaic](https://pypi.org/project/photomosaic/).
+
+## TODO:
+
+- [ ] fix or remove colour space conversions and distribution matching
