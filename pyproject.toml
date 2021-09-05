@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mosaic"
+name = "phomo"
 version = "0.1.0"
 description = ""
 authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
@@ -17,7 +17,7 @@ colour-science = "^0.3.16"
 pytest = "^6.2.5"
 
 [tool.poetry.scripts]
-mosaic = 'mosaic.__main__:main'
+phomo = 'phomo.__main__:main'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

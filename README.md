@@ -1,4 +1,6 @@
-# Mosaic
+<h1 align="center">Phomo</h1>
+<h3 align="center"><img src="https://i.imgur.com/rMze8u5.png" width="1000"></h3>
+<h5 align="center">Python package and CLI utility to create photo mosaics.</h5>
 
 <p align="center">
   <a href="https://github.com/loiccoyle/mosaic/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/mosaic/workflows/tests/badge.svg"></a>
@@ -12,17 +14,17 @@ Requires python 3
 In a terminal:
 
 ```sh
-git clone https://github.com/loiccoyle/mosaic
+git clone https://github.com/loiccoyle/phomo
 cd mosaic
 pip install .
 ```
 
 ## Usage
 
-Once it is installed, you can use the `mosaic` command.
+Once it is installed, you can use the `phomo` command.
 
 ```
-usage: mosaic [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]]
+usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]]
               [-C TILE_CROP_RATIO] [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g]
               [-d SUBDIVISIONS [SUBDIVISIONS ...]]
               master tile_dir

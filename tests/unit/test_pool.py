@@ -5,8 +5,8 @@ from shutil import rmtree
 from PIL import Image
 import numpy as np
 
-from mosaic import Pool, utils
-from mosaic.pool import PoolTiles
+from phomo import Pool, utils
+from phomo.pool import PoolTiles
 
 
 class TestPool(TestCase):

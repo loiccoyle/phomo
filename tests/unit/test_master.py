@@ -5,7 +5,7 @@ from shutil import rmtree
 from PIL import Image
 import numpy as np
 
-from mosaic import Master
+from phomo import Master
 
 
 class TestMaster(TestCase):

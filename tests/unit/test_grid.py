@@ -1,12 +1,10 @@
-from pathlib import Path
 from unittest import TestCase
-from shutil import rmtree
 
 from PIL import Image
 import numpy as np
 
-from mosaic import Master
-from mosaic.grid import Grid
+from phomo import Master
+from phomo.grid import Grid
 
 
 class TestMaster(TestCase):

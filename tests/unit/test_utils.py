@@ -5,7 +5,7 @@ from unittest import TestCase
 import numpy as np
 from PIL import Image
 
-from mosaic import utils
+from phomo import utils
 
 
 class TestUtils(TestCase):
@@ -30,7 +30,7 @@ class TestUtils(TestCase):
         range_params = (0, 256, 15)
         shape = (20, 10)
         utils.rainbow_of_squares(
-            self.rainbow_dir,size=shape, range_params=range_params
+            self.rainbow_dir, size=shape, range_params=range_params
         )
         tiles = list(self.rainbow_dir.glob("*"))
         # check the number of tiles created
