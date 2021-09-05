@@ -3,7 +3,7 @@
 <h5 align="center">Python package and CLI utility to create photo mosaics.</h5>
 
 <p align="center">
-  <a href="https://github.com/loiccoyle/mosaic/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/mosaic/workflows/tests/badge.svg"></a>
+  <a href="https://github.com/loiccoyle/phomo/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/phomo/workflows/tests/badge.svg"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
