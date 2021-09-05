@@ -6,7 +6,7 @@
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
-`phomo` lets you create [photographc mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic).
+`phomo` lets you create [photographic mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic).
 It arranges the tile images to best recreate a master image. To acheive this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences.
 Once this distance matrix is computed, each tile is assigned to the region of the master with the smallest distance between the colour distributions.
 
@@ -31,6 +31,14 @@ See the [`examples`](./examples) folder for usage as a python package.
 ### CLI
 
 Once it is installed, you can use the `phomo` command.
+
+It would go something like:
+
+```sh
+$ phomo master.png tile_directory -S 20 20 -o mosaic.png
+```
+
+If in doubt see the help:
 
 ```
 usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]]
@@ -71,3 +79,4 @@ The grid subdivision and colour space stuff (currently broken) was inspired by [
 ## TODO:
 
 - [ ] fix or remove colour space conversions and distribution matching
+- [ ] look into non greedy tile assignements
