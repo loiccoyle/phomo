@@ -1,4 +1,3 @@
-<h1 align="center">Phomo</h1>
 <h3 align="center"><img src="https://i.imgur.com/rMze8u5.png" width="1000"></h3>
 <h5 align="center">Python package and CLI utility to create photo mosaics.</h5>
 
@@ -6,6 +5,9 @@
   <a href="https://github.com/loiccoyle/phomo/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/phomo/workflows/tests/badge.svg"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
+
+`phomo` lets you create [photographc mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic). It arranges the tile images so as to recreate a master image. To acheive this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences. Once this distance matrix is computed, each tile is assigned to the region of the master with the smallest distance between the colour distributions.
+
 
 ## Instalation
 
@@ -20,6 +22,12 @@ pip install .
 ```
 
 ## Usage
+
+### Python package
+
+See the [`examples`](./examples) folder for usage as a python package.
+
+### CLI
 
 Once it is installed, you can use the `phomo` command.
 
