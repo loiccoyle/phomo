@@ -15,7 +15,7 @@ In a terminal:
 
 ```sh
 git clone https://github.com/loiccoyle/phomo
-cd mosaic
+cd phomo
 pip install .
 ```
 
