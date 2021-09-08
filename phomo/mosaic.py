@@ -164,7 +164,7 @@ class Mosaic:
                 array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
             d_matrix[i, :] = [
                 np.linalg.norm(
-                    (np.int16(tile) - np.int16(array)).reshape(-1, 3),
+                    np.subtract(tile, array, dtype=float).reshape(-1, 3),
                     ord=ord,
                 )
                 for tile in self.pool.arrays
@@ -176,7 +176,7 @@ class Mosaic:
         """Construct the mosaic image.
 
         Args:
-            ord: Order of the norm used to compute the distance. See np.linalg.norm.
+            ord: Order of the norm used to compute the distance. See `np.linalg.norm`.
 
         Returns:
             The PIL.Image instance of the mosaic.
