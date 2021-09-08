@@ -41,7 +41,10 @@ class Grid:
     def _compute_slices(self) -> Iterator[Tuple[slice, slice]]:
         for x in range(0, self.mosaic_shape[1], self.tile_shape[1]):
             for y in range(0, self.mosaic_shape[0], self.tile_shape[0]):
-                yield (slice(y, y + self.tile_shape[0]), slice(x, x + self.tile_shape[1]))
+                yield (
+                    slice(y, y + self.tile_shape[0]),
+                    slice(x, x + self.tile_shape[1]),
+                )
 
     @staticmethod
     def _subdivide(
@@ -115,7 +118,7 @@ class Grid:
         """Subdivide grid based on contrast.
 
         Note:
-            Modifies in place.
+            Modifies the grid in place.
 
         Args:
             threshold: contrast threshold at which to divide the slice into 4
@@ -137,6 +140,6 @@ class Grid:
             colour: tuple of RGB values, between 0 and 255.
 
         Returns:
-            Image of the grid overlayed atop the master image.
+            Image of the grid overlayed ontop the master image.
         """
         return plot_grid(self.master.array, self.slices, colour)

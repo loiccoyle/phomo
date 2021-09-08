@@ -7,6 +7,7 @@ from .plot import plot_palette
 
 
 class Palette:
+    """Colour palette methods."""
     pixels: np.ndarray
 
     def palette(self, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
