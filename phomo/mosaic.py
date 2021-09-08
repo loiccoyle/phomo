@@ -3,7 +3,7 @@ import os
 import random
 from functools import partial
 from multiprocessing import Pool as MpPool
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -13,6 +13,7 @@ from .grid import Grid
 from .master import Master
 from .pool import Pool
 from .utils import resize_array
+from .metrics import METRICS, MetricCallable
 
 
 # TODO: this does not work
@@ -143,13 +144,27 @@ class Mosaic:
     def n_leftover(self) -> int:
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
-    def _d_matrix(self, ord: Optional[int] = None) -> np.ndarray:
+    def _d_matrix(
+        self, metric: Union[str, MetricCallable] = "norm", *args, **kwargs
+    ) -> np.ndarray:
         """Compute the distance matrix between all the master's tiles and the
         pool tiles.
 
         Returns:
             Distance matrix, shape: (number of master arrays, number of tiles in the pool).
         """
+        if isinstance(metric, str):
+            if metric not in METRICS.keys():
+                raise KeyError(
+                    f"'%s' not in available metrics: %s",
+                    metric,
+                    repr(list(METRICS.keys())),
+                )
+            self._log.info("Using metric %s", metric)
+            metric_func = METRICS[metric]
+        else:
+            self._log.info("Using user provided distance metric function.")
+            metric_func = metric
         # Compute the distance matrix.
         d_matrix = np.zeros((len(self.grid.slices), len(self.pool.arrays)))
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
@@ -163,20 +178,20 @@ class Mosaic:
             if array[:-1].shape != self.tile_shape:
                 array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
             d_matrix[i, :] = [
-                np.linalg.norm(
-                    np.subtract(tile, array, dtype=float).reshape(-1, 3),
-                    ord=ord,
-                )
-                for tile in self.pool.arrays
+                metric_func(tile, array, *args, **kwargs) for tile in self.pool.arrays
             ]
 
         return d_matrix
 
-    def build(self, ord: Optional[int] = None) -> Image.Image:
+    def build(
+        self, metric: Union[str, MetricCallable] = "norm", *args, **kwargs
+    ) -> Image.Image:
         """Construct the mosaic image.
 
         Args:
-            ord: Order of the norm used to compute the distance. See `np.linalg.norm`.
+            metric: The distance metric used for the distance matrix. Either
+                provide a string, for implemented metrics see `phomo.metrics.METRICS`.
+                Or a callable, which should take two `np.ndarray`s and return a float.
 
         Returns:
             The PIL.Image instance of the mosaic.
@@ -184,7 +199,7 @@ class Mosaic:
         mosaic = np.zeros((self.size[1], self.size[0], 3))
 
         # Compute the distance matrix.
-        d_matrix = self._d_matrix(ord=ord)
+        d_matrix = self._d_matrix(metric=metric, *args, **kwargs)
 
         # Keep track of tiles and sub arrays.
         placed_master_arrays = set()
