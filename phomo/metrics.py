@@ -25,6 +25,9 @@ def register_metric(func):
 def greyscale(img_a: np.ndarray, img_b: np.ndarray, *args, **kwargs) -> float:
     """Compute the greyscale distance.
 
+    This metric ignores colours and compares greyscale values. Should provide better
+    photomosaics when using few tiles images.
+
     Args:
         img_a: array containing the RGB pixels with values between 0 and 255.
         img_b: array containing the RGB pixels with values between 0 and 255.
@@ -43,6 +46,8 @@ def greyscale(img_a: np.ndarray, img_b: np.ndarray, *args, **kwargs) -> float:
 @register_metric
 def norm(img_a: np.ndarray, img_b: np.ndarray, *args, **kwargs) -> float:
     """`np.linalg.norm` distance metric.
+
+    Quick distance metric in RGB space.
 
     Args:
         img_a: array containing the RGB pixels with values between 0 and 255.
@@ -79,7 +84,9 @@ def norm(img_a: np.ndarray, img_b: np.ndarray, *args, **kwargs) -> float:
 
 @register_metric
 def luv_approx(img_a: np.ndarray, img_b: np.ndarray, *args, **kwargs) -> float:
-    """Distance metric, a L*U*V approximation.
+    """Distance metric using a L*U*V space approximation.
+
+    This metric should provide more accurate colour matching.
 
     Reference:
         https://www.compuphase.com/cmetric.htm
