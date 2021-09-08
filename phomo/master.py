@@ -6,8 +6,7 @@ import numpy as np
 from PIL import Image
 
 from .palette import Palette
-from .pool import Pool
-from .utils import open_img_file, to_rgb, to_ucs
+from .utils import open_img_file
 
 
 class Master(Palette):
@@ -70,79 +69,17 @@ class Master(Palette):
         self.array = array
         self._log = logging.getLogger(__name__)
         self._log.info("master shape: %s", self.array.shape)
-        self._space = "rgb"
 
     @property
     def img(self):
         """PIL.Image of the Master image."""
-        if self._space == "ucs":
-            img_array = to_rgb(self.array)
-        else:
-            img_array = self.array
-        return Image.fromarray(img_array.round(0).astype("uint8"), mode="RGB")
+        return Image.fromarray(self.array.round(0).astype("uint8"), mode="RGB")
 
     @property
     def pixels(self) -> np.ndarray:
         """Array containing the 3-channel pixel values of the Master image."""
         return self.array.reshape(-1, self.array.shape[-1])
 
-    @property
-    def space(self) -> str:
-        """Colour space of the tiles in the pool.
-
-        Either "rgb" or "ucs".
-        """
-        return self._space
-
-    def to_ucs(self) -> "Master":
-        """Convert master to uniform colour space.
-
-        Returns:
-            Master instance converted to UCS colour space.
-        """
-        if self._space == "ucs":
-            raise ValueError("Color space is already UCS.")
-        out = Master(to_ucs(self.array))
-        out._space = "ucs"
-        return out
-
-    def to_rgb(self) -> "Master":
-        """Convert master to RGB colours space.
-
-        Returns:
-            Master instance converted to RGB colour space.
-        """
-        if self._space == "rgb":
-            raise ValueError("Color space is already RGB.")
-        out = Master(to_rgb(self.array))
-        out._space = "rgb"
-        return out
-
-    def match(self, pool: Pool) -> "Master":
-        """Match the colour distribution of the master with the pool.
-
-        Note:
-            Currently broken.
-
-        Args:
-            pool: Pool instance to match the colour distribution.
-
-        Returns:
-            Master instance matched with its colour distribution matched to the pool.
-        """
-        if self._space != pool._space:
-            raise ValueError("Master and Pool have different color spaces.")
-        match_function = self._match_function(pool)
-        array = match_function(self.array)
-        # if self._space == "ucs":
-        #     array = to_RGB(array)
-        # elif self._space == "rgb":
-        #     array = array.round(0).astype('uint8')
-        out = Master(array)
-        out._space = self._space
-        return out
-
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
-    space: {self.space}
     shape: {self.array.shape}"""

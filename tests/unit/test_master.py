@@ -41,24 +41,6 @@ class TestMaster(TestCase):
             == self.master_array.shape[0] * self.master_array.shape[1]
         )
 
-    def test_space(self):
-        assert self.master.space == "rgb"
-
-    def test_to_ucs(self):
-        master_ucs = self.master.to_ucs()
-        assert master_ucs.space == "ucs"
-        with self.assertRaises(ValueError):
-            master_ucs.to_ucs()
-
-    def test_to_rgb(self):
-        master_ucs = self.master.to_ucs()
-        assert master_ucs.space == "ucs"
-        master_rgb = master_ucs.to_rgb()
-        assert master_rgb.space == "rgb"
-        with self.assertRaises(ValueError):
-            master_rgb.to_rgb()
-        assert np.allclose(master_rgb.array, self.master.array, atol=1)
-
     # Palette methods
     def test_palette(self):
         self.master.palette()

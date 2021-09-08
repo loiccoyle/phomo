@@ -45,30 +45,6 @@ class TestPool(TestCase):
         assert pixels.shape[-1] == 3
         assert pixels.shape[0] == len(self.tile_paths) * 10 * 10
 
-    def test_space(self):
-        assert self.pool.space == "rgb"
-
-    def test_to_ucs(self):
-        pool_ucs = self.pool.to_ucs()
-        assert pool_ucs._space == "ucs"
-        with self.assertRaises(ValueError):
-            pool_ucs.to_ucs()
-
-    def test_to_rgb(self):
-        pool_ucs = self.pool.to_ucs()
-        assert pool_ucs.space == "ucs"
-        pool_rgb = pool_ucs.to_rgb()
-        assert pool_rgb.space == "rgb"
-        with self.assertRaises(ValueError):
-            pool_rgb.to_rgb()
-        # make sure everything is consistent
-        assert np.all(
-            [
-                np.allclose(init_array, array, atol=1)
-                for init_array, array in zip(self.pool.arrays, pool_rgb.arrays)
-            ]
-        )
-
     def test_len(self):
         assert len(self.tile_paths) == len(self.pool)
 

@@ -68,15 +68,6 @@ class TestUtils(TestCase):
         resized = utils.resize_array(self.test_array, (32, 64))
         assert resized.shape == (64, 32, 3)
 
-    def test_to_ucs(self):
-        utils.to_ucs(self.test_array)
-
-    def test_to_rgb(self):
-        ucs = utils.to_ucs(self.test_array)
-        rgb = utils.to_rgb(ucs)
-        # test transitivity
-        assert np.allclose(self.test_array, rgb, atol=1)
-
     def tearDown(self):
         if self.test_dir.is_dir():
             rmtree(self.test_dir)

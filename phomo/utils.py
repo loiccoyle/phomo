@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Optional, Tuple
 
-import colour
 import numpy as np
 from PIL import Image
 from PIL.ImageOps import exif_transpose
@@ -9,7 +8,7 @@ from tqdm.auto import tqdm
 
 
 def rainbow_of_squares(
-        target_dir: Path, size: Tuple[int, int]=(10, 10), range_params=(0, 256, 15)
+    target_dir: Path, size: Tuple[int, int] = (10, 10), range_params=(0, 256, 15)
 ) -> None:
     """Generate 5832 small solid-color tiles for experimentation and testing.
 
@@ -135,65 +134,3 @@ def resize_array(
         Array containing the resized image data.
     """
     return np.asarray(Image.fromarray(array).resize(size, *args, **kwargs))
-
-
-def to_ucs(array_sRGB: np.ndarray) -> np.ndarray:
-    """Convert image pixel array to UCS.
-
-    Args:
-        array_sRGB: 3D array containing the pixel colours. It should be a 3 channel
-            array with colour bound from 0 to 255.
-
-    Returns:
-        3D array containing the values in UCS.
-    """
-    array_xyz = colour.sRGB_to_XYZ(array_sRGB / 255)
-    return colour.XYZ_to_UCS(array_xyz)
-
-
-def to_rgb(array_ucs: np.ndarray) -> np.ndarray:
-    """Convert image pixel array to RGB.
-
-    Args:
-        array_ucs: 3D array containing the pixel colours. It should be a 3 channel
-            array.
-
-    Returns:
-        3D array containing the values in RGB.
-    """
-    array_xyz = colour.UCS_to_XYZ(array_ucs)
-    return np.clip(colour.XYZ_to_sRGB(array_xyz), 0, 1) * 255
-
-
-# TODO: implement latest CAM16 models:
-# https://github.com/colour-science/colour#54129cam16-lcd-cam16-scd-and-cam16-ucs-colourspaces---li-et-al-2017
-# def to_UCS(array_sRGB: np.ndarray) -> np.ndarray:
-#     """sRGB -> XYZ -> CAM16 -> CAM16UCS"""
-#     array_xyz = colour.sRGB_to_XYZ(array_sRGB / 255)
-#     XYZ_w = [95.05, 100.00, 108.88]
-#     L_A = 318.31
-#     Y_b = 20.0
-#     surround = colour.VIEWING_CONDITIONS_CIECAM02["Average"]
-#     specification = colour.XYZ_to_CAM16(array_xyz, XYZ_w, L_A, Y_b, surround)
-#     JMh = np.stack([specification.J, specification.M, specification.h], axis=-1)
-#     array_ucs = colour.JMh_CAM16_to_CAM16UCS(JMh)
-#     return array_ucs
-
-
-# def to_RGB(array_UCS: np.ndarray) -> np.ndarray:
-#     XYZ_w = [95.05, 100.00, 108.88]
-#     L_A = 318.31
-#     Y_b = 20.0
-#     surround = colour.VIEWING_CONDITIONS_CIECAM02["Average"]
-#     array_cam16 = colour.CAM16UCS_to_JMh_CAM16(array_UCS)
-#     array_xyz = colour.CAM16_to_XYZ(
-#         colour.CAM_Specification_CAM16(
-#             J=array_cam16[:, :, 0], C=array_cam16[:, :, 1], h=array_cam16[:, :, 2]
-#         ),
-#         XYZ_w,
-#         L_A,
-#         Y_b,
-#         surround,
-#     )
-#     array_rgb = np.clip(colour.XYZ_to_sRGB(array_xyz), 0, 1) * 255
-#     return array_rgb

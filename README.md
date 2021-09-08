@@ -78,6 +78,5 @@ The grid subdivision and colour space stuff (currently broken) was inspired by [
 
 ## TODO:
 
-- [ ] fix or remove colour space conversions and distribution matching
 - [ ] look into non greedy tile assignements
 - [ ] look into parallelizing/multithreading

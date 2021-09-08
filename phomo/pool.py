@@ -7,7 +7,7 @@ from PIL import Image
 from tqdm.auto import tqdm
 
 from .palette import Palette
-from .utils import open_img_file, to_rgb, to_ucs
+from .utils import open_img_file
 
 
 class Pool(Palette):
@@ -77,7 +77,6 @@ class Pool(Palette):
         self.arrays = arrays
         self._log = logging.getLogger(__name__)
         self._log.info("Number of tiles: %s", len(self.arrays))
-        self._space = "rgb"
 
     @property
     def tiles(self) -> "PoolTiles":
@@ -88,11 +87,7 @@ class Pool(Palette):
 
             >>> pool.tiles[0].show()
         """
-        if self._space == "rgb":
-            arrays = self.arrays
-        else:
-            arrays = [to_rgb(array) for array in self.arrays]
-        return PoolTiles(arrays)
+        return PoolTiles(self.arrays)
 
     @property
     def pixels(self) -> np.ndarray:
@@ -101,14 +96,6 @@ class Pool(Palette):
         #     self._log.debug("Computing colors.")
         #     self._colors = self._flatten_arrays(self.arrays)
         return np.vstack([array.reshape(-1, array.shape[-1]) for array in self.arrays])
-
-    @property
-    def space(self) -> str:
-        """Colour space of the tiles in the pool.
-
-        Either "rgb" or "ucs".
-        """
-        return self._space
 
     @staticmethod
     def _load_files(files: List[Path], **kwargs) -> List[np.ndarray]:
@@ -122,36 +109,11 @@ class Pool(Palette):
             arrays.append(array)
         return arrays
 
-    def to_ucs(self) -> "Pool":
-        if self._space == "ucs":
-            raise ValueError("Color space is already UCS.")
-        out = Pool(
-            [
-                to_ucs(array)
-                for array in tqdm(self.arrays, desc="Converting tiles to UCS")
-            ]
-        )
-        out._space = "ucs"
-        return out
-
-    def to_rgb(self) -> "Pool":
-        if self._space == "rgb":
-            raise ValueError("Color space is already RGB.")
-        out = Pool(
-            [
-                to_rgb(array)
-                for array in tqdm(self.arrays, desc="Converting tiles to RGB")
-            ]
-        )
-        out._space = "rgb"
-        return out
-
     def __len__(self) -> int:
         return len(self.arrays)
 
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
-    space: {self.space}
     len: {self.__len__()}"""
 
 

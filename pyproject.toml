@@ -14,7 +14,6 @@ Pillow = "^8.2.0"
 numpy = "^1.20.2"
 tqdm = "^4.60.0"
 matplotlib = "^3.4.1"
-colour-science = "^0.3.16"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
