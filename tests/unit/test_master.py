@@ -1,9 +1,9 @@
 from pathlib import Path
-from unittest import TestCase
 from shutil import rmtree
+from unittest import TestCase
 
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 from phomo import Master
 

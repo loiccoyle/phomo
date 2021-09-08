@@ -1,12 +1,11 @@
 from pathlib import Path
-from unittest import TestCase
 from shutil import rmtree
+from unittest import TestCase
 
-from PIL import Image
 import numpy as np
+from PIL import Image
 
-from phomo import Pool, utils
-from phomo import Master, Pool, Mosaic
+from phomo import Master, Mosaic, Pool, utils
 
 
 class TestMosaic(TestCase):

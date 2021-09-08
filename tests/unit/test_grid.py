@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 from phomo import Master
 from phomo.grid import Grid
