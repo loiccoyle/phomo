@@ -1,8 +1,7 @@
-from typing import Protocol
 import functools
+from typing import Protocol
 
 import numpy as np
-
 
 METRICS = {}
 

@@ -11,9 +11,9 @@ from tqdm.auto import tqdm
 
 from .grid import Grid
 from .master import Master
+from .metrics import METRICS, MetricCallable
 from .pool import Pool
 from .utils import resize_array
-from .metrics import METRICS, MetricCallable
 
 
 # TODO: this does not work
