@@ -95,7 +95,11 @@ class Mosaic:
             desc="Building distance matrix",
         ):
             array = self.master.array[slices[0], slices[1]]
-            if array[:-1].shape != self.tile_shape:
+            # if the tile grid was subdivided the master array can be smaller
+            # than the tiles, need to resize to match the shapes
+            if array.shape[:-1] != self.tile_shape:
+                # this isn't exact because we are upscalling the master array
+                # we should be shrinking all the tile arrays but that is slower
                 array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
             d_matrix[i, :] = [
                 metric_func(tile, array, *args, **kwargs) for tile in self.pool.arrays
