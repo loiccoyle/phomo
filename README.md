@@ -74,9 +74,10 @@ optional arguments:
 
 ## Note
 
-The grid subdivision and colour space stuff (currently broken) was inspired by [photomosaic](https://pypi.org/project/photomosaic/).
+The grid subdivision feature was inspired by [photomosaic](https://pypi.org/project/photomosaic/).
 
 ## TODO:
 
 - [ ] look into non greedy tile assignements
 - [ ] look into parallelizing/multithreading
+- [ ] palette matching
