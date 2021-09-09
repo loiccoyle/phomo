@@ -12,7 +12,7 @@ import numpy as np
 METRICS = {}
 
 
-class MetricCallable(Protocol):
+class MetricCallable(Protocol):  # type: ignore
     def __call__(self, a: np.ndarray, b: np.ndarray) -> float:
         ...
 

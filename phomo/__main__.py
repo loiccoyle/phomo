@@ -123,14 +123,14 @@ def main():
     master = Master.from_file(
         Path(args.master),
         crop_ratio=args.master_crop_ratio,
-        img_size=master_size,
+        img_size=master_size,  # type: ignore
         convert=mode,
     )
 
     pool = Pool.from_dir(
         Path(args.tile_dir),
         crop_ratio=args.tile_crop_ratio,
-        tile_size=tile_size,
+        tile_size=tile_size, # type: ignore
         convert=mode,
     )
 

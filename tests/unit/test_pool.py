@@ -2,7 +2,6 @@ from pathlib import Path
 from shutil import rmtree
 from unittest import TestCase
 
-import numpy as np
 from PIL import Image
 
 from phomo import Pool, utils
