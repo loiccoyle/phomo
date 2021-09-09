@@ -1,9 +1,5 @@
 import logging
-import os
-import random
-from functools import partial
-from multiprocessing import Pool as MpPool
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -14,82 +10,6 @@ from .master import Master
 from .metrics import METRICS, MetricCallable
 from .pool import Pool
 from .utils import resize_array
-
-
-# TODO: this does not work
-class MosaicUnstructured:
-    def __init__(self, master: Master, pool: Pool, workers: Optional[int] = None):
-        self.master = master
-        self.pool = pool
-        if workers is None:
-            workers = os.cpu_count()
-
-        self.workers = workers
-        self._log = logging.getLogger(__name__)
-
-    def build(self, shuffle: bool = True, n_points: int = 64):
-        """Construct the mosaic.
-
-        Args:
-            shuffle: shuffle the order of the tiles before building the mosaic.
-            n_points: number of coordinate to try for each tile.
-        """
-        tiles = self.pool.arrays
-        if shuffle:
-            self._log.info("Shuffling pool.")
-            tiles = random.sample(tiles, len(tiles))
-
-        mosaic_array = np.zeros_like(self.master.array)
-        with MpPool(self.workers) as pool:
-            for tile_array in tqdm(tiles, desc="Building"):
-                possible_ij = list(
-                    zip(
-                        np.random.choice(
-                            np.arange(
-                                0,
-                                self.master.array.shape[0] - tile_array.shape[0],
-                                dtype=np.uint,
-                            ),
-                            n_points,
-                            replace=False,
-                        ),
-                        np.random.choice(
-                            np.arange(
-                                0,
-                                self.master.array.shape[1] - tile_array.shape[1],
-                                dtype=np.uint,
-                            ),
-                            n_points,
-                            replace=False,
-                        ),
-                    )
-                )
-                out = pool.map(
-                    partial(self._loss, tile_array=tile_array),
-                    possible_ij,
-                    chunksize=len(possible_ij) // self.workers
-                    if self.workers
-                    else None,
-                )
-                min_ij = possible_ij[np.argmin(out)]
-                mosaic_array[
-                    min_ij[0] : int(min_ij[0] + tile_array.shape[0]),
-                    min_ij[1] : int(min_ij[1] + tile_array.shape[1]),
-                ] = tile_array
-        return Image.fromarray(mosaic_array.astype(np.uint8))
-
-    def _loss(self, ij: Tuple[int, int], tile_array: np.ndarray) -> float:
-        i, j = int(ij[0]), int(ij[1])
-        return np.linalg.norm(
-            (
-                self.master.array[
-                    i : i + tile_array.shape[0],
-                    j : j + tile_array.shape[1],
-                ]
-                - tile_array
-            ).reshape((-1, tile_array.shape[-1])),
-            ord=1,
-        )
 
 
 class Mosaic:

@@ -32,7 +32,7 @@ def rainbow_of_squares(
 
 def crop_to_ratio(image: Image.Image, ratio: float = 1) -> Image.Image:
     """Reshapes an image to the specified ratio by cropping along the larger
-    dimension that doesn't meet the specified aspect ratio.
+    dimension.
 
     Args:
         image: PIL.Image to crop.
