@@ -1,8 +1,7 @@
-from typing import Callable, Tuple
+from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 
 class Palette:
@@ -70,33 +69,3 @@ class Palette:
             ax.set_title(f"Channel {i+1}")
         fig.tight_layout()
         return fig, axes
-
-    def _match_function(self, other: "Palette") -> Callable:
-        self_bins, self_freqs = self.palette()
-        # self_bins = self_bins[:-1]
-        self_cdfs = self._cdfs(self_freqs)
-
-        other_bins, other_freqs = other.palette()
-        # other_bins = other_bins[:-1]
-        other_cdfs = other._cdfs(other_freqs)
-
-        def channel_map(arr, channel: int):
-            """Rescale values in ``arr`` from this palette to another."""
-            # Where in the old cdf did value(s) in arr fall?
-            old_y = np.interp(arr, self_bins[:, channel], self_cdfs[:, channel])
-            # Find the value at the corresponding position in the new cdf.
-            new_x = np.interp(old_y, other_cdfs[:, channel], other_bins[:, channel])
-            return new_x
-
-        def map_function(image_array: np.ndarray) -> np.ndarray:
-            # image_shape = image_array.shape
-            # image_array = image_array.reshape(-1, image_array.shape[-1])
-
-            new_image = np.empty_like(image_array)
-            for channel in range(self.pixels.shape[-1]):
-                new_image[:, :, channel] = channel_map(
-                    image_array[:, :, channel], channel
-                )
-            return new_image  # .reshape(image_shape)
-
-        return map_function
