@@ -5,7 +5,6 @@ import numpy as np
 from PIL import Image
 
 from .master import Master
-from .plot import plot_grid
 
 
 class Grid:
@@ -128,18 +127,25 @@ class Grid:
         self._slices = list(self._yield_subdivide(threshold))
         self.thresholds.append(threshold)
 
+    def plot(self, colour: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
+        """Draw the tile edges on a copy of master image image.
+
+        Args:
+            colour: Colour of tile edges.
+
+        Returns:
+            Master image with the tile grid overlayed ontop.
+        """
+        annotated_image = self.master.array.copy()
+        for y, x in self.slices:
+            annotated_image[y, x.start] = colour
+            annotated_image[y, x.stop - 1] = colour
+            annotated_image[y.start, x] = colour
+            annotated_image[y.stop - 1, x] = colour
+        return Image.fromarray(annotated_image)
+
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
     len slices: {len(self.slices)}
     thresholds: {self.thresholds}"""
 
-    def plot(self, colour: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
-        """Plot the grid layout.
-
-        Args:
-            colour: tuple of RGB values, between 0 and 255.
-
-        Returns:
-            Image of the grid overlayed ontop the master image.
-        """
-        return plot_grid(self.master.array, self.slices, colour)

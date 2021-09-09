@@ -3,11 +3,11 @@ from typing import Callable, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .plot import plot_palette
 
 
 class Palette:
     """Colour palette methods."""
+
     pixels: np.ndarray
 
     def palette(self, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
@@ -46,16 +46,30 @@ class Palette:
         cdfs /= cdfs[-1]
         return cdfs
 
-    def plot(self, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    def plot(self, log: bool = False) -> Tuple[plt.Figure, plt.Axes]:
         """Plot the colour distribution.
 
         Args:
-            **kwargs: passed to `mosiac.plot.plot_palette`.
+            log: Plot y axis in log scale.
 
         Returns:
-            The figure and axe objects.
+            Plot figure and axes.
         """
-        return plot_palette(*self.palette(), **kwargs)
+
+        bin_edges, values = self.palette()
+        fig, axes = plt.subplots(3, figsize=(12, 6))
+        for i, ax in enumerate(axes):
+            ax.bar(
+                bin_edges[:-1, i],
+                values[:, i],
+                width=np.diff(bin_edges[:, i]),
+                align="edge",
+            )
+            if log:
+                ax.set_yscale("log")
+            ax.set_title(f"Channel {i+1}")
+        fig.tight_layout()
+        return fig, axes
 
     def _match_function(self, other: "Palette") -> Callable:
         self_bins, self_freqs = self.palette()
