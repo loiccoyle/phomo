@@ -1,12 +1,21 @@
 [tool.poetry]
 name = "phomo"
 version = "0.1.0"
-description = ""
+description = "Python package and CLI utility to create photo mosaics."
 authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/loiccoyle/phomo"
 keywords = ["photomosaic", "photographic", "mosaic", "art", "image"]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Artistic Software",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.10"
