@@ -4,6 +4,7 @@
 <p align="center">
   <a href="https://github.com/loiccoyle/phomo/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/phomo/workflows/tests/badge.svg"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-informational">
 </p>
 
 `phomo` lets you create [photographic mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic).
