@@ -19,10 +19,12 @@ Requires python 3
 In a terminal:
 
 ```sh
-git clone https://github.com/loiccoyle/phomo
-cd phomo
-pip install .
+$ pip install phomo
 ```
+
+As always, it is usually a good idea to use a [virtual environment](https://docs.python.org/3/library/venv.html).
+
+If you're just interested in command line usage, consider using [pipx](https://pypa.github.io/pipx/).
 
 ## Usage
 
