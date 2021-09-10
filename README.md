@@ -9,10 +9,10 @@
 </p>
 
 `phomo` lets you create [photographic mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic).
-It arranges the tile images to best recreate a master image. To acheive this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences.
+It arranges the tile images to best recreate a master image. To achieve this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences.
 Once this distance matrix is computed, each tile is assigned to the region of the master with the smallest distance between the colour distributions.
 
-## Instalation
+## Installation
 
 Requires python 3
 
@@ -82,6 +82,6 @@ The grid subdivision feature was inspired by [photomosaic](https://pypi.org/proj
 
 ## TODO:
 
-- [ ] look into non greedy tile assignements
+- [ ] look into non greedy tile assignments
 - [ ] look into parallelizing/multithreading
 - [ ] palette matching
