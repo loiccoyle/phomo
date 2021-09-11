@@ -76,7 +76,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "-d",
         "--subdivisions",
-        help="Subdivision thresholds.",
+        help="Grid subdivision thresholds.",
         nargs="+",
         default=[],
         type=float,

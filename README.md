@@ -73,15 +73,17 @@ optional arguments:
                         Black and white.
   -g, --show-grid       Show the tile grid, don't build the mosiac.
   -d SUBDIVISIONS [SUBDIVISIONS ...], --subdivisions SUBDIVISIONS [SUBDIVISIONS ...]
-                        Subdivision thresholds.
+                        Grid subdivision thresholds.
 ```
 
 ## Note
 
 The grid subdivision feature was inspired by [photomosaic](https://pypi.org/project/photomosaic/).
 
-## TODO:
+## TODO
 
 - [ ] look into non greedy tile assignments
 - [ ] look into parallelizing/multithreading
 - [ ] palette matching
+- [ ] documentation
+- [ ] shell completion
