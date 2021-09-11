@@ -130,7 +130,7 @@ def main():
     pool = Pool.from_dir(
         Path(args.tile_dir),
         crop_ratio=args.tile_crop_ratio,
-        tile_size=tile_size, # type: ignore
+        tile_size=tile_size,  # type: ignore
         convert=mode,
     )
 

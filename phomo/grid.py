@@ -148,4 +148,3 @@ class Grid:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
     len slices: {len(self.slices)}
     thresholds: {self.thresholds}"""
-
