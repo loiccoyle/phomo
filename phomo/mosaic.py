@@ -116,6 +116,7 @@ class Mosaic:
             metric: The distance metric used for the distance matrix. Either
                 provide a string, for implemented metrics see `phomo.metrics.METRICS`.
                 Or a callable, which should take two `np.ndarray`s and return a float.
+            *args, **kwargs: Passed to the metric function.
 
         Returns:
             The PIL.Image instance of the mosaic.
