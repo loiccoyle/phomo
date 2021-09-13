@@ -45,10 +45,9 @@ $ phomo master.png tile_directory -S 20 20 -o mosaic.png
 If in doubt see the help:
 
 ```
-usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]]
-             [-C TILE_CROP_RATIO] [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b]
-             [-g] [-d SUBDIVISIONS [SUBDIVISIONS ...]] [-m {greyscale,norm,luv_approx}]
-             [-j WORKERS]
+usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
+             [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g] [-d SUBDIVISIONS [SUBDIVISIONS ...]]
+             [-m {greyscale,norm,luv_approx}] [-j WORKERS]
              master tile_dir
 
 positional arguments:
@@ -78,8 +77,7 @@ optional arguments:
   -m {greyscale,norm,luv_approx}, --metric {greyscale,norm,luv_approx}
                         Distance metric.
   -j WORKERS, --workers WORKERS
-                        Number of processes to run in parallel when computing the distance
-                        matrix.
+                        Number of threads to run when computing the distance matrix.
 ```
 
 ## Note

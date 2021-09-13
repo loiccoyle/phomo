@@ -116,17 +116,19 @@ class Mosaic:
         worker = partial(self._d_matrix_worker, metric_func=metric_func, **kwargs)
         if threads != 1:
             self._log.info(
-                "Computing distance matrix in parallel, %i threads.", threads
+                "Computing distance matrix in %i threads.", threads
             )
             with ThreadPool(processes=threads) as pool:
                 d_matrix = np.array(
-                    tqdm(
-                        pool.imap(
-                            worker,
-                            self.grid.slices,
-                        ),
-                        total=len(self.grid.slices),
-                        desc="Building distance matrix",
+                    list(
+                        tqdm(
+                            pool.imap(
+                                worker,
+                                self.grid.slices,
+                            ),
+                            total=len(self.grid.slices),
+                            desc="Building distance matrix",
+                        )
                     )
                 )
         else:
