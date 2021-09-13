@@ -115,9 +115,7 @@ class Mosaic:
         # Compute the distance matrix.
         worker = partial(self._d_matrix_worker, metric_func=metric_func, **kwargs)
         if threads != 1:
-            self._log.info(
-                "Computing distance matrix in %i threads.", threads
-            )
+            self._log.info("Computing distance matrix in %i threads.", threads)
             with ThreadPool(processes=threads) as pool:
                 d_matrix = np.array(
                     list(
