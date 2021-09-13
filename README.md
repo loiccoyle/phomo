@@ -82,8 +82,8 @@ The grid subdivision feature was inspired by [photomosaic](https://pypi.org/proj
 
 ## TODO
 
+- [x] look into parallelizing/multithreading
 - [ ] look into non greedy tile assignments
-- [ ] look into parallelizing/multithreading
 - [ ] palette matching
 - [ ] documentation
 - [ ] shell completion

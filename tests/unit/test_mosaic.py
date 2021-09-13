@@ -47,8 +47,17 @@ class TestMosaic(TestCase):
         assert self.mosaic.n_leftover == 15
 
     def test_build(self):
-        mosaic_img = self.mosaic.build()
+        mosaic_img = self.mosaic.build(processes=None)
         assert mosaic_img.size == self.mosaic.size
+
+        mosaic_img = self.mosaic.build(processes=2)
+        assert mosaic_img.size == self.mosaic.size
+
+        mosaic_img = self.mosaic.build(processes=1)
+        assert mosaic_img.size == self.mosaic.size
+
+        with self.assertRaises(ValueError):
+            mosaic_img = self.mosaic.build(processes=0)
 
     def tearDown(self):
         if self.test_dir.is_dir():

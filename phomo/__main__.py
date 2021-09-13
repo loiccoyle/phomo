@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 
 from . import logger
+from .metrics import METRICS
 from .mosaic import Master, Mosaic, Pool
 
 
@@ -84,6 +85,21 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         default=[],
         type=float,
     )
+    parser.add_argument(
+        "-m",
+        "--metric",
+        help="Distance metric.",
+        default="norm",
+        type=str,
+        choices=METRICS.keys(),
+    )
+    parser.add_argument(
+        "-j",
+        "--workers",
+        help="Number of processes to run in parallel when computing the distance matrix.",
+        default=None,
+        type=int,
+    )
     return parser.parse_args(args)
 
 
@@ -147,7 +163,7 @@ def main():
         grid_im = mosaic.grid.plot()
         grid_im.show()
     else:
-        mosaic_im = mosaic.build()
+        mosaic_im = mosaic.build(processes=args.workers, metric=args.metric)
         if args.output is None:
             mosaic_im.show()
         else:
