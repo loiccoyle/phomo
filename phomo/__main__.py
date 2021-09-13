@@ -65,7 +65,10 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
     parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
     parser.add_argument(
-        "-b", "--black_and_white", help="Black and white.", action="store_true"
+        "-b",
+        "--black-and-white",
+        help="Convert master and tile images to black and white.",
+        action="store_true",
     )
     parser.add_argument(
         "-g",
