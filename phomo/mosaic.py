@@ -189,8 +189,9 @@ class Mosaic:
             if tile_array.shape[:-1] != array_size[::-1]:
                 tile_array = resize_array(tile_array, array_size)
 
-            # TODO: will need to substract the remainders here when centering
-            # the mosaic
+            # shift slices back so that the centering of the mosaic within the
+            # master image is removed
+            slices = self.grid.remove_origin(slices)
             mosaic[slices[0], slices[1]] = tile_array
             placed_master_arrays.add(slices_i)
             n_appearances[tile] += 1

@@ -25,6 +25,10 @@ class Grid:
         self.mosaic_shape = mosaic_shape
         self.tile_shape = tile_shape
         self.thresholds = []
+        self.origin = (
+            self.master.array.shape[0] % self.tile_shape[0] // 2,
+            self.master.array.shape[1] % self.tile_shape[1] // 2,
+        )
         self._log = logging.getLogger(__name__)
         self._slices = None
 
@@ -38,12 +42,25 @@ class Grid:
 
     # TODO: center the mosaic in the master img
     def _compute_slices(self) -> Iterator[Tuple[slice, slice]]:
-        for x in range(0, self.mosaic_shape[1], self.tile_shape[1]):
-            for y in range(0, self.mosaic_shape[0], self.tile_shape[0]):
+        for x in range(
+            self.origin[1], self.mosaic_shape[1] - self.origin[1], self.tile_shape[1]
+        ):
+            for y in range(
+                self.origin[0],
+                self.mosaic_shape[0] - self.origin[0],
+                self.tile_shape[0],
+            ):
                 yield (
                     slice(y, y + self.tile_shape[0]),
                     slice(x, x + self.tile_shape[1]),
                 )
+
+    def remove_origin(self, slices: Tuple[slice, slice]) -> Tuple[slice, slice]:
+        """Remove the origin of the mosaic from a slice tuple."""
+        return (
+            slice(slices[0].start - self.origin[0], slices[0].stop - self.origin[0]),
+            slice(slices[1].start - self.origin[1], slices[1].stop - self.origin[1]),
+        )
 
     @staticmethod
     def _subdivide(
@@ -146,5 +163,6 @@ class Grid:
 
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
+    origin: {self.origin}
     len slices: {len(self.slices)}
     thresholds: {self.thresholds}"""
