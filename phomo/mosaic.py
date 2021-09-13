@@ -33,9 +33,9 @@ class Mosaic:
             n_appearances: Number of times a tile can appear in the mosaic.
 
         Examples:
-            Creating a Mosaic instance.
+            Building a mosaic.
 
-            >>> Mosaic(master, pool, n_appearances=1)
+            >>> Mosaic(master, pool, n_appearances=1).build()
         """
         self._log = logging.getLogger(__name__)
         self.master = master
@@ -65,6 +65,7 @@ class Mosaic:
 
     @property
     def n_leftover(self) -> int:
+        """The number of tiles which will be unused when building the mosaic."""
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
     def _d_matrix_worker(self, slices, metric_func, **kwargs):
