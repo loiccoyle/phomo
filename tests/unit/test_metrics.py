@@ -33,3 +33,7 @@ class TestMetrics(TestCase):
         a = np.ones((5, 4, 3))
         b = np.zeros((5, 4, 3))
         assert metrics.luv_approx(a, b) > 0
+
+    def test_metrics(self):
+        # make sure this dictionary gets populated
+        assert len(metrics.METRICS) > 0

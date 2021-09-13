@@ -1,4 +1,3 @@
-import functools
 import sys
 
 # prior to python 3.8 the protocol is in typing_extensions
@@ -19,12 +18,7 @@ class MetricCallable(Protocol):  # type: ignore
 
 def register_metric(func):
     METRICS[func.__name__] = func
-
-    @functools.wraps(func)
-    def metric(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return metric
+    return func
 
 
 @register_metric
