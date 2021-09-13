@@ -37,7 +37,7 @@ def greyscale(img_a: np.ndarray, img_b: np.ndarray, *args, **kwargs) -> float:
         Colour distance approximation.
     """
     return np.linalg.norm(
-        np.subtract(img_a.mean(axis=-1), img_b.mean(axis=-1), dtype=float),
+        np.subtract(img_a.sum(axis=-1), img_b.sum(axis=-1), dtype=float),
         *args,
         **kwargs,
     )
