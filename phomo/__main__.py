@@ -96,8 +96,8 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "-j",
         "--workers",
-        help="Number of processes to run in parallel when computing the distance matrix.",
-        default=None,
+        help="Number of threads to run when computing the distance matrix.",
+        default=1,
         type=int,
     )
     return parser.parse_args(args)
@@ -157,13 +157,13 @@ def main():
     for threshold in args.subdivisions:
         mosaic.grid.subdivide(threshold)
 
-    logger.info("mosaic:\n%s", repr(mosaic))
+    logger.debug("mosaic:\n%s", repr(mosaic))
 
     if args.show_grid:
         grid_im = mosaic.grid.plot()
         grid_im.show()
     else:
-        mosaic_im = mosaic.build(processes=args.workers, metric=args.metric)
+        mosaic_im = mosaic.build(threads=args.workers, metric=args.metric)
         if args.output is None:
             mosaic_im.show()
         else:

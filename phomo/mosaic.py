@@ -1,8 +1,7 @@
 import logging
-import os
 from functools import partial
-from multiprocessing import Pool as MpPool
-from typing import Optional, Tuple, Union
+from multiprocessing.pool import ThreadPool
+from typing import List, Tuple, Union, Callable
 
 import numpy as np
 from PIL import Image
@@ -68,8 +67,10 @@ class Mosaic:
         """The number of tiles which will be unused when building the mosaic."""
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
-    def _d_matrix_worker(self, slices, metric_func, **kwargs):
-        """Multiprocessing worker. Computes one row of the distance matrix."""
+    def _d_matrix_worker(
+        self, slices: Tuple[slice, slice], metric_func: Callable, **kwargs
+    ) -> List[float]:
+        """Parallel worker. Computes one row of the distance matrix."""
         array = self.master.array[slices[0], slices[1]]
         # if the tile grid was subdivided the master array can be smaller
         # than the tiles, need to resize to match the shapes
@@ -81,7 +82,7 @@ class Mosaic:
 
     def _d_matrix(
         self,
-        processes: Optional[int] = None,
+        threads: int = 1,
         metric: Union[str, MetricCallable] = "norm",
         **kwargs,
     ) -> np.ndarray:
@@ -89,18 +90,15 @@ class Mosaic:
         pool tiles.
 
         Args:
-            processes: The number of worker processes to use. If processes is
-                None then the number returned by os.cpu_count() is used.
+            threads: The number of worker threads to use.
+            metric: The distance metric used for the distance matrix. Either
+                provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
+                Or a callable, which should take two ``np.ndarray``s and return a float.
+            **kwargs: Passed to `metric`.
 
         Returns:
             Distance matrix, shape: (number of master arrays, number of tiles in the pool).
         """
-        if processes is None:
-            processes = os.cpu_count()
-            # I'm sure when cpu_count() can return None, but check anyway
-            if processes is None:
-                processes = 1
-
         if isinstance(metric, str):
             if metric not in METRICS.keys():
                 raise KeyError(
@@ -108,7 +106,7 @@ class Mosaic:
                     metric,
                     repr(list(METRICS.keys())),
                 )
-            self._log.info("Using metric %s", metric)
+            self._log.info("Using metric '%s'", metric)
             metric_func = METRICS[metric]
         else:
             self._log.info("Using user provided distance metric function.")
@@ -116,27 +114,24 @@ class Mosaic:
 
         # Compute the distance matrix.
         worker = partial(self._d_matrix_worker, metric_func=metric_func, **kwargs)
-        if processes != 1:
-            self._log.debug(
-                "Computing distance matrix in parallel, %i processes.", processes
+        if threads != 1:
+            self._log.info(
+                "Computing distance matrix in parallel, %i threads.", threads
             )
-            with MpPool(processes=processes) as pool:
+            with ThreadPool(processes=threads) as pool:
                 d_matrix = np.array(
-                    list(
-                        tqdm(
-                            pool.imap(
-                                worker,
-                                self.grid.slices,
-                                chunksize=len(self.grid.slices) // processes,
-                            ),
-                            total=len(self.grid.slices),
-                            desc="Building distance matrix",
-                        )
+                    tqdm(
+                        pool.imap(
+                            worker,
+                            self.grid.slices,
+                        ),
+                        total=len(self.grid.slices),
+                        desc="Building distance matrix",
                     )
                 )
         else:
             # get rid of pool overhead if serial computation is desired.
-            self._log.debug("Computing distance matrix in serial.")
+            self._log.info("Computing distance matrix in serial.")
             d_matrix = np.array(
                 [
                     worker(slice)
@@ -148,13 +143,15 @@ class Mosaic:
 
     def build(
         self,
-        processes: Optional[int] = None,
+        threads: int = 1,
         metric: Union[str, MetricCallable] = "norm",
         **kwargs,
     ) -> Image.Image:
         """Construct the mosaic image.
 
         Args:
+            threads: The number of worker threads to use when computing the
+                distance matrix.
             metric: The distance metric used for the distance matrix. Either
                 provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
                 Or a callable, which should take two ``np.ndarray``s and return a float.
@@ -166,7 +163,7 @@ class Mosaic:
         mosaic = np.zeros((self.size[1], self.size[0], 3))
 
         # Compute the distance matrix.
-        d_matrix = self._d_matrix(processes=processes, metric=metric, **kwargs)
+        d_matrix = self._d_matrix(threads=threads, metric=metric, **kwargs)
 
         # Keep track of tiles and sub arrays.
         placed_master_arrays = set()
