@@ -40,7 +40,6 @@ class Grid:
             self._slices = list(self._compute_slices())
         return self._slices
 
-    # TODO: center the mosaic in the master img
     def _compute_slices(self) -> Iterator[Tuple[slice, slice]]:
         for x in range(
             self.origin[1], self.mosaic_shape[1] - self.origin[1], self.tile_shape[1]

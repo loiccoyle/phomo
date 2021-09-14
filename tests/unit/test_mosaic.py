@@ -46,7 +46,6 @@ class TestMosaic(TestCase):
     def test_n_leftover(self):
         assert self.mosaic.n_leftover == 15
 
-
     def test_build(self):
         mosaic_img = self.mosaic.build(threads=1)
         assert mosaic_img.size == self.mosaic.size

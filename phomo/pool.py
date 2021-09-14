@@ -71,8 +71,8 @@ class Pool(Palette):
         """A Pool of images tiles.
 
         Args:
-            arrays: list of arrays containing the image pixel values. Should containing
-                3 colour channels.
+            arrays: list of arrays containing the image pixel values. Should
+                contain 3 colour channels.
         """
         self.arrays = arrays
         self._log = logging.getLogger(__name__)
