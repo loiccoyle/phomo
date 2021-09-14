@@ -1,7 +1,7 @@
 import logging
 from functools import partial
 from multiprocessing.pool import ThreadPool
-from typing import List, Tuple, Union, Callable
+from typing import Callable, List, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -78,7 +78,7 @@ class Mosaic:
             # this isn't exact because we are upscalling the master array
             # we should be shrinking all the tile arrays but that is slower
             array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
-        return [metric_func(tile, array, **kwargs) for tile in self.pool.arrays]
+        return metric_func(array, self.pool.arrays, **kwargs)
 
     def _d_matrix(
         self,
