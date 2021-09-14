@@ -77,7 +77,7 @@ optional arguments:
   -m {greyscale,norm,luv_approx}, --metric {greyscale,norm,luv_approx}
                         Distance metric.
   -j WORKERS, --workers WORKERS
-                        Number of threads to run when computing the distance matrix.
+                        Number of workers to run when computing the distance matrix.
 ```
 
 ## Note
@@ -91,3 +91,4 @@ The grid subdivision feature was inspired by [photomosaic](https://pypi.org/proj
 - [ ] palette matching
 - [ ] documentation
 - [ ] shell completion
+- [ ] hex grid
