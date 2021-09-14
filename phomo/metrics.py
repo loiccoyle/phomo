@@ -1,5 +1,4 @@
 import sys
-from typing import List
 
 # prior to python 3.8, Protocol is in typing_extensions
 if sys.version_info[0] == 3 and sys.version_info[1] < 8:
@@ -13,9 +12,7 @@ METRICS = {}
 
 
 class MetricCallable(Protocol):  # type: ignore
-    def __call__(
-        self, master_chunk: np.ndarray, tile_arrays: List[np.ndarray]
-    ) -> float:
+    def __call__(self, master_chunk: np.ndarray, tile_arrays: np.ndarray) -> float:
         ...
 
 
@@ -26,7 +23,7 @@ def register_metric(func):
 
 @register_metric
 def greyscale(
-    master_chunk: np.ndarray, tile_arrays: List[np.ndarray], **kwargs
+    master_chunk: np.ndarray, tile_arrays: np.ndarray, **kwargs
 ) -> np.ndarray:
     """Compute the greyscale distance.
 
@@ -36,7 +33,7 @@ def greyscale(
 
     Args:
         master_chunk: array containing the RGB pixels with values between 0 and 255.
-        tile_arrays: list of tile pixel arrays, values between 0 and 255.
+        tile_arrays: array tile pixel arrays, values between 0 and 255.
         **kwargs: passed to ``np.linalg.norm``.
 
     Returns:
@@ -44,15 +41,13 @@ def greyscale(
             arrays.
     """
     delta = np.subtract(
-        master_chunk.sum(axis=-1), np.stack(tile_arrays).sum(axis=-1), dtype=float
+        master_chunk.sum(axis=-1), tile_arrays.sum(axis=-1), dtype=float
     )
     return np.linalg.norm(delta.reshape(delta.shape[0], -1), axis=-1, **kwargs)
 
 
 @register_metric
-def norm(
-    master_chunk: np.ndarray, tile_arrays: List[np.ndarray], **kwargs
-) -> np.ndarray:
+def norm(master_chunk: np.ndarray, tile_arrays: np.ndarray, **kwargs) -> np.ndarray:
     """``np.linalg.norm`` distance metric.
 
     Quick distance metric in RGB space.
@@ -66,9 +61,12 @@ def norm(
         Colour distance approximation between the master chunk and all the tiles
             arrays.
     """
-    delta = np.subtract(master_chunk, np.stack(tile_arrays), dtype=float)
     return np.linalg.norm(
-        delta.reshape(delta.shape[0], -1, delta.shape[-1]), axis=(1, 2), **kwargs
+        np.subtract(master_chunk, tile_arrays, dtype=float).reshape(
+            tile_arrays.shape[0], -1, tile_arrays.shape[-1]
+        ),
+        axis=(1, 2),
+        **kwargs,
     )
 
 
@@ -96,7 +94,7 @@ def norm(
 
 @register_metric
 def luv_approx(
-    master_chunk: np.ndarray, tile_arrays: List[np.ndarray], **kwargs
+    master_chunk: np.ndarray, tile_arrays: np.ndarray, **kwargs
 ) -> np.ndarray:
     """Distance metric using a L*U*V space approximation.
 
@@ -114,8 +112,7 @@ def luv_approx(
         Colour distance approximation between the master chunk and all the tiles
             arrays.
     """
-    tile_stack = np.stack(tile_arrays)
-    r = (master_chunk[:, :, 0] + tile_stack[:, :, :, 0]) // 2
+    r = (master_chunk[:, :, 0] + tile_arrays[:, :, :, 0]) // 2
     d = np.subtract(master_chunk, tile_arrays, dtype=float)
     return np.linalg.norm(
         (

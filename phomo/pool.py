@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -44,7 +44,7 @@ class Pool(Palette):
     @classmethod
     def from_files(
         cls,
-        files: List[Path],
+        files: Sequence[Path],
         *args,
         crop_ratio: Optional[float] = None,
         tile_size: Optional[Tuple[int, int]] = None,
@@ -66,7 +66,7 @@ class Pool(Palette):
 
     def __init__(
         self,
-        arrays: List[np.ndarray],
+        arrays: Sequence[np.ndarray],
     ) -> None:
         """A Pool of images tiles.
 
@@ -74,7 +74,7 @@ class Pool(Palette):
             arrays: list of arrays containing the image pixel values. Should
                 contain 3 colour channels.
         """
-        self.arrays = arrays
+        self.arrays = np.stack(arrays)
         self._log = logging.getLogger(__name__)
         self._log.info("Number of tiles: %s", len(self.arrays))
 
@@ -98,7 +98,7 @@ class Pool(Palette):
         return np.vstack([array.reshape(-1, array.shape[-1]) for array in self.arrays])
 
     @staticmethod
-    def _load_files(files: List[Path], **kwargs) -> List[np.ndarray]:
+    def _load_files(files: Sequence[Path], **kwargs) -> List[np.ndarray]:
         arrays = []
         for tile in tqdm(files, desc="Loading tiles"):
             img = open_img_file(tile, **kwargs)
@@ -120,11 +120,11 @@ class Pool(Palette):
 class PoolTiles:
     """Helper interface to access of PIL.Image instances of the tiles."""
 
-    def __init__(self, arrays: List[np.ndarray]) -> None:
+    def __init__(self, arrays: np.ndarray) -> None:
         self._arrays = arrays
 
     def __getitem__(self, index) -> Union[List[Image.Image], Image.Image]:
-        selected = self._arrays[index]
+        selected = self._arrays[index]  # type: np.ndarray
         if isinstance(selected, list):
             return [Image.fromarray(selected.round(0).astype("uint8"), mode="RGB")]
         else:

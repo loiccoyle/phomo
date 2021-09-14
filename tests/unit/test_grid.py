@@ -26,6 +26,11 @@ class TestMaster(TestCase):
             self.master_array.shape[1] // 16
         )
 
+    def test_arrays(self):
+        assert len(self.grid.arrays) == (self.master_array.shape[0] // 16) * (
+            self.master_array.shape[1] // 16
+        )
+
     def test_subdivide(self):
         prev_len = len(self.grid.slices)
         self.grid.subdivide(0.1)

@@ -31,6 +31,17 @@ class Grid:
         )
         self._log = logging.getLogger(__name__)
         self._slices = None
+        self._arrays = None
+
+    @property
+    def arrays(self) -> List[np.ndarray]:
+        """List of arrays containing the pixel values of all the slices."""
+        if self._arrays is None:
+            self._log.debug("Computing arrays.")
+            self._arrays = [
+                self.master.array[slices[0], slices[1]] for slices in self.slices
+            ]
+        return self._arrays
 
     @property
     def slices(self) -> List[Tuple[slice, slice]]:
@@ -141,6 +152,8 @@ class Grid:
         """
         self._log.info("Subdividing with threshold %f", threshold)
         self._slices = list(self._yield_subdivide(threshold))
+        # clear the cached arrays
+        self._arrays = None
         self.thresholds.append(threshold)
 
     def plot(self, colour: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
@@ -159,6 +172,9 @@ class Grid:
             annotated_image[y.start, x] = colour
             annotated_image[y.stop - 1, x] = colour
         return Image.fromarray(annotated_image)
+
+    def __len__(self) -> int:
+        return len(self.slices)
 
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:

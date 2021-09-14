@@ -68,10 +68,9 @@ class Mosaic:
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
     def _d_matrix_worker(
-        self, slices: Tuple[slice, slice], metric_func: Callable, **kwargs
+        self, array: np.ndarray, metric_func: Callable, **kwargs
     ) -> List[float]:
         """Parallel worker. Computes one row of the distance matrix."""
-        array = self.master.array[slices[0], slices[1]]
         # if the tile grid was subdivided the master array can be smaller
         # than the tiles, need to resize to match the shapes
         if array.shape[:-1] != self.tile_shape:
@@ -122,7 +121,7 @@ class Mosaic:
                         tqdm(
                             pool.imap(
                                 worker,
-                                self.grid.slices,
+                                self.grid.arrays,
                             ),
                             total=len(self.grid.slices),
                             desc="Building distance matrix",
@@ -134,8 +133,8 @@ class Mosaic:
             self._log.info("Computing distance matrix in serial.")
             d_matrix = np.array(
                 [
-                    worker(slice)
-                    for slice in tqdm(self.grid.slices, desc="Building distance matrix")
+                    worker(array)
+                    for array in tqdm(self.grid.arrays, desc="Building distance matrix")
                 ]
             )
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
