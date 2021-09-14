@@ -163,7 +163,7 @@ def main():
         grid_im = mosaic.grid.plot()
         grid_im.show()
     else:
-        mosaic_im = mosaic.build(threads=args.workers, metric=args.metric)
+        mosaic_im = mosaic.build(workers=args.workers, metric=args.metric)
         if args.output is None:
             mosaic_im.show()
         else:

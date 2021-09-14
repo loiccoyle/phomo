@@ -1,6 +1,6 @@
 import logging
 from functools import partial
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import Pool as MpPool
 from typing import Callable, List, Tuple, Union
 
 import numpy as np
@@ -81,7 +81,7 @@ class Mosaic:
 
     def _d_matrix(
         self,
-        threads: int = 1,
+        workers: int = 1,
         metric: Union[str, MetricCallable] = "norm",
         **kwargs,
     ) -> np.ndarray:
@@ -89,7 +89,7 @@ class Mosaic:
         pool tiles.
 
         Args:
-            threads: The number of worker threads to use.
+            workers: The number of worker to use.
             metric: The distance metric used for the distance matrix. Either
                 provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
                 Or a callable, which should take two ``np.ndarray``s and return a float.
@@ -113,15 +113,16 @@ class Mosaic:
 
         # Compute the distance matrix.
         worker = partial(self._d_matrix_worker, metric_func=metric_func, **kwargs)
-        if threads != 1:
-            self._log.info("Computing distance matrix in %i threads.", threads)
-            with ThreadPool(processes=threads) as pool:
+        if workers != 1:
+            self._log.info("Computing distance matrix with %i workers.", workers)
+            with MpPool(processes=workers) as pool:
                 d_matrix = np.array(
                     list(
                         tqdm(
                             pool.imap(
                                 worker,
                                 self.grid.arrays,
+                                chunksize=len(self.grid) // workers,
                             ),
                             total=len(self.grid.slices),
                             desc="Building distance matrix",
@@ -142,14 +143,14 @@ class Mosaic:
 
     def build(
         self,
-        threads: int = 1,
+        workers: int = 1,
         metric: Union[str, MetricCallable] = "norm",
         **kwargs,
     ) -> Image.Image:
         """Construct the mosaic image.
 
         Args:
-            threads: The number of worker threads to use when computing the
+            workers: The number of workers to use when computing the
                 distance matrix.
             metric: The distance metric used for the distance matrix. Either
                 provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
@@ -162,7 +163,7 @@ class Mosaic:
         mosaic = np.zeros((self.size[1], self.size[0], 3))
 
         # Compute the distance matrix.
-        d_matrix = self._d_matrix(threads=threads, metric=metric, **kwargs)
+        d_matrix = self._d_matrix(workers=workers, metric=metric, **kwargs)
 
         # Keep track of tiles and sub arrays.
         placed_master_arrays = set()
