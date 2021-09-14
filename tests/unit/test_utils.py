@@ -9,21 +9,22 @@ from phomo import utils
 
 
 class TestUtils(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUp(cls):
         # create test directory
-        self.test_dir = Path("test_utils")
-        if not self.test_dir.is_dir():
-            self.test_dir.mkdir()
+        cls.test_dir = Path("test_utils")
+        if not cls.test_dir.is_dir():
+            cls.test_dir.mkdir()
         # rainbow tile directory
-        self.rainbow_dir = self.test_dir / "rainbow"
-        if not self.rainbow_dir.is_dir():
-            self.rainbow_dir.mkdir()
+        cls.rainbow_dir = cls.test_dir / "rainbow"
+        if not cls.rainbow_dir.is_dir():
+            cls.rainbow_dir.mkdir()
         # create a test image object
-        self.test_array = np.ones((64, 64, 3), dtype="uint8") * 255
-        self.test_img = Image.fromarray(self.test_array)
+        cls.test_array = np.ones((64, 64, 3), dtype="uint8") * 255
+        cls.test_img = Image.fromarray(cls.test_array)
         # create a test image file
-        self.test_img_file = self.test_dir / "test_img.png"
-        self.test_img.save(self.test_img_file)
+        cls.test_img_file = cls.test_dir / "test_img.png"
+        cls.test_img.save(cls.test_img_file)
 
     def test_rainbow_of_squares(self):
         # create the squares
@@ -68,6 +69,7 @@ class TestUtils(TestCase):
         resized = utils.resize_array(self.test_array, (32, 64))
         assert resized.shape == (64, 32, 3)
 
-    def tearDown(self):
-        if self.test_dir.is_dir():
-            rmtree(self.test_dir)
+    @classmethod
+    def tearDownClass(cls):
+        if cls.test_dir.is_dir():
+            rmtree(cls.test_dir)

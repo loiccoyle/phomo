@@ -9,27 +9,27 @@ from phomo import Master
 
 
 class TestMaster(TestCase):
-    def setUp(self):
-        self.test_dir = Path("test_master")
-        if not self.test_dir.is_dir():
-            self.test_dir.mkdir()
-        self.master_path = self.test_dir / "master.png"
+    @classmethod
+    def setUp(cls):
+        cls.test_dir = Path("test_master")
+        if not cls.test_dir.is_dir():
+            cls.test_dir.mkdir()
+        cls.master_path = cls.test_dir / "master.png"
         # create a test image object
-        self.master_array = np.ones((64, 64, 3), dtype="uint8") * 255
-        self.master_img = Image.fromarray(self.master_array)
+        cls.master_array = np.ones((64, 64, 3), dtype="uint8") * 255
+        cls.master_img = Image.fromarray(cls.master_array)
         # create a test image file
-        self.master_img.save(self.master_path)
+        cls.master_img.save(cls.master_path)
         # create test master
-        self.master = Master.from_file(self.master_path)
+        cls.master = Master.from_file(cls.master_path)
 
-    def test_from_image(self):
-        Master.from_image(self.master_img)
+    def test_constructors(self):
+        master_img = Master.from_image(self.master_img)
+        master_file = Master.from_file(self.master_path)
+        assert (master_img.array == master_file.array).all()
         # make sure it works for single channel modes
         master = Master.from_image(self.master_img.convert("L"))
         assert master.array.shape[-1] == 3
-
-    def test_from_file(self):
-        Master.from_file(self.master_path)
 
     def test_img(self):
         assert isinstance(self.master.img, Image.Image)
@@ -51,6 +51,7 @@ class TestMaster(TestCase):
     def test_plot(self):
         self.master.plot()
 
-    def tearDown(self):
-        if self.test_dir.is_dir():
-            rmtree(self.test_dir)
+    @classmethod
+    def tearDown(cls):
+        if cls.test_dir.is_dir():
+            rmtree(cls.test_dir)

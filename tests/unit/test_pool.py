@@ -9,21 +9,20 @@ from phomo.pool import PoolTiles
 
 
 class TestPool(TestCase):
-    def setUp(self):
-        self.test_dir = Path("test_pool")
-        if not self.test_dir.is_dir():
-            self.test_dir.mkdir()
+    @classmethod
+    def setUpClass(cls):
+        cls.test_dir = Path("test_pool")
+        if not cls.test_dir.is_dir():
+            cls.test_dir.mkdir()
         # rainbow tile directory
-        self.tile_dir = self.test_dir / "rainbow"
-        if not self.tile_dir.is_dir():
-            self.tile_dir.mkdir()
-        utils.rainbow_of_squares(
-            self.tile_dir, size=(10, 10), range_params=(0, 255, 60)
-        )
-        self.tile_paths = list(self.tile_dir.glob("*"))
+        cls.tile_dir = cls.test_dir / "rainbow"
+        if not cls.tile_dir.is_dir():
+            cls.tile_dir.mkdir()
+        utils.rainbow_of_squares(cls.tile_dir, size=(10, 10), range_params=(0, 255, 60))
+        cls.tile_paths = list(cls.tile_dir.glob("*"))
 
         # create test pool
-        self.pool = Pool.from_dir(self.tile_dir)
+        cls.pool = Pool.from_dir(cls.tile_dir)
 
     def test_from_dir(self):
         pool = Pool.from_dir(self.tile_dir)
@@ -57,6 +56,7 @@ class TestPool(TestCase):
     def test_plot(self):
         self.pool.plot()
 
-    def tearDown(self):
-        if self.test_dir.is_dir():
-            rmtree(self.test_dir)
+    @classmethod
+    def tearDownClass(cls):
+        if cls.test_dir.is_dir():
+            rmtree(cls.test_dir)
