@@ -158,6 +158,7 @@ def main():
         mosaic.grid.subdivide(threshold)
 
     logger.debug("mosaic:\n%s", repr(mosaic))
+    logger.info("Number of unused tiles: %i", mosaic.n_leftover)
 
     if args.show_grid:
         grid_im = mosaic.grid.plot()
