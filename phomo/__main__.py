@@ -96,7 +96,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "-j",
         "--workers",
-        help="Number of threads to run when computing the distance matrix.",
+        help="Number of workers use to run when computing the distance matrix.",
         default=1,
         type=int,
     )
