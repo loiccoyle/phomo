@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "phomo"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python package and CLI utility to create photo mosaics."
 authors = ["Loic Coyle <loic.coyle@hotmail.fr>"]
 license = "MIT"
@@ -18,7 +18,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.10"
+python = ">=3.7"
 Pillow = "^8.2.0"
 numpy = "^1.20.2"
 tqdm = "^4.60.0"
