@@ -19,12 +19,22 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         argparse Namespace of the parsed arguments.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("master", help="Master image path.", type=str)
     parser.add_argument(
-        "tile_dir", help="Directory containing the tile images.", type=str
+        "master",
+        help="Master image path.",
+        type=str,
     )
     parser.add_argument(
-        "-o", "--output", help="Mosiac output path.", type=str, default=None
+        "tile_dir",
+        help="Directory containing the tile images.",
+        type=str,
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Mosiac output path.",
+        type=str,
+        default=None,
     )
     parser.add_argument(
         "-c",
@@ -64,7 +74,13 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         type=int,
         default=1,
     )
-    parser.add_argument("-v", "--verbose", help="Verbosity.", action="count", default=0)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbosity.",
+        action="count",
+        default=0,
+    ),
     parser.add_argument(
         "-b",
         "--black-and-white",
