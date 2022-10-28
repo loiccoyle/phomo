@@ -123,9 +123,5 @@ class PoolTiles:
     def __init__(self, arrays: np.ndarray) -> None:
         self._arrays = arrays
 
-    def __getitem__(self, index) -> Union[List[Image.Image], Image.Image]:
-        selected = self._arrays[index]  # type: np.ndarray
-        if isinstance(selected, list):
-            return [Image.fromarray(selected.round(0).astype("uint8"), mode="RGB")]
-        else:
-            return Image.fromarray(selected.round(0).astype("uint8"), mode="RGB")
+    def __getitem__(self, index) -> Image.Image:
+        return Image.fromarray(self._arrays[index].round(0).astype("uint8"), mode="RGB")
