@@ -1,7 +1,7 @@
 import logging
 from functools import partial
 from multiprocessing.pool import Pool as MpPool
-from typing import Callable, List, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -24,7 +24,7 @@ class Mosaic:
         """Construct a regular grid mosaic.
 
         Note:
-            The Pool's tiles should  all be the same size.
+            The Pool's tiles should all be the same size.
 
         Args:
             master: Master image to reconstruct.
@@ -68,8 +68,8 @@ class Mosaic:
         return len(self.pool) * self.n_appearances - len(self.grid.slices)
 
     def _d_matrix_worker(
-        self, array: np.ndarray, metric_func: Callable, **kwargs
-    ) -> List[float]:
+        self, array: np.ndarray, metric_func: MetricCallable, **kwargs
+    ) -> np.ndarray:
         """Parallel worker. Computes one row of the distance matrix."""
         # if the tile grid was subdivided the master array can be smaller
         # than the tiles, need to resize to match the shapes
@@ -79,7 +79,7 @@ class Mosaic:
             array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
         return metric_func(array, self.pool.arrays, **kwargs)
 
-    def _d_matrix(
+    def compute_d_matrix(
         self,
         workers: int = 1,
         metric: Union[str, MetricCallable] = "norm",
@@ -145,6 +145,7 @@ class Mosaic:
         self,
         workers: int = 1,
         metric: Union[str, MetricCallable] = "norm",
+        d_matrix: Optional[np.ndarray] = None,
         **kwargs,
     ) -> Image.Image:
         """Construct the mosaic image.
@@ -155,6 +156,7 @@ class Mosaic:
             metric: The distance metric used for the distance matrix. Either
                 provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
                 Or a callable, which should take two ``np.ndarray``s and return a float.
+            d_matrix: Use a pre-computed distance matrix.
             **kwargs: Passed to the `metric` function.
 
         Returns:
@@ -163,7 +165,8 @@ class Mosaic:
         mosaic = np.zeros((self.size[1], self.size[0], 3))
 
         # Compute the distance matrix.
-        d_matrix = self._d_matrix(workers=workers, metric=metric, **kwargs)
+        if d_matrix is None:
+            d_matrix = self.compute_d_matrix(workers=workers, metric=metric, **kwargs)
 
         # Keep track of tiles and sub arrays.
         placed_master_arrays = set()
