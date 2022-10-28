@@ -12,7 +12,7 @@ METRICS = {}
 
 
 class MetricCallable(Protocol):  # type: ignore
-    def __call__(self, master_chunk: np.ndarray, tile_arrays: np.ndarray) -> float:
+    def __call__(self, master_chunk: np.ndarray, tile_arrays: np.ndarray) -> np.ndarray:
         ...
 
 
