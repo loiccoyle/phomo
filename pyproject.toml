@@ -26,7 +26,7 @@ matplotlib = "^3.4.1"
 typing-extensions = { version = "^3.10.0", markers = "python_version ~= '3.7'"}
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
+pytest = "^7.2.0"
 
 [tool.poetry.scripts]
 phomo = 'phomo.__main__:main'
