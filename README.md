@@ -46,6 +46,46 @@ If in doubt see the help:
 
 <!-- help start -->
 
+```
+$ phomo -h
+usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO]
+             [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
+             [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g]
+             [-d SUBDIVISIONS [SUBDIVISIONS ...]]
+             [-m {greyscale,norm,luv_approx}] [-j WORKERS]
+             master tile_dir
+
+positional arguments:
+  master                Master image path.
+  tile_dir              Directory containing the tile images.
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Mosiac output path.
+  -c MASTER_CROP_RATIO, --master-crop-ratio MASTER_CROP_RATIO
+                        Crop the master image to width/height ratio.
+  -s MASTER_SIZE [MASTER_SIZE ...], --master-size MASTER_SIZE [MASTER_SIZE ...]
+                        Resize master image to width, height.
+  -C TILE_CROP_RATIO, --tile-crop-ratio TILE_CROP_RATIO
+                        Crop the tile images to width/height ratio.
+  -S TILE_SIZE [TILE_SIZE ...], --tile-size TILE_SIZE [TILE_SIZE ...]
+                        Resize tile images to width, height.
+  -n N_APPEARANCES, --n-appearances N_APPEARANCES
+                        The number of times a tile can appear in the mosaic.
+  -v, --verbose         Verbosity.
+  -b, --black-and-white
+                        Convert master and tile images to black and white.
+  -g, --show-grid       Show the tile grid, don't build the mosiac.
+  -d SUBDIVISIONS [SUBDIVISIONS ...], --subdivisions SUBDIVISIONS [SUBDIVISIONS ...]
+                        Grid subdivision thresholds.
+  -m {greyscale,norm,luv_approx}, --metric {greyscale,norm,luv_approx}
+                        Distance metric.
+  -j WORKERS, --workers WORKERS
+                        Number of workers use to run when computing the
+                        distance matrix.
+```
+
 <!-- help end -->
 
 ## 🤩 Credit
