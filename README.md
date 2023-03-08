@@ -44,9 +44,14 @@ $ phomo master.png tile_directory -S 20 20 -o mosaic.png
 
 If in doubt see the help:
 
+<!-- help start -->
+
 ```
-usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO] [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
-             [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g] [-d SUBDIVISIONS [SUBDIVISIONS ...]]
+$ phomo -h
+usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO]
+             [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
+             [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g]
+             [-d SUBDIVISIONS [SUBDIVISIONS ...]]
              [-m {greyscale,norm,luv_approx}] [-j WORKERS]
              master tile_dir
 
@@ -54,7 +59,7 @@ positional arguments:
   master                Master image path.
   tile_dir              Directory containing the tile images.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
                         Mosiac output path.
@@ -77,8 +82,11 @@ optional arguments:
   -m {greyscale,norm,luv_approx}, --metric {greyscale,norm,luv_approx}
                         Distance metric.
   -j WORKERS, --workers WORKERS
-                        Number of workers use to run when computing the distance matrix.
+                        Number of workers use to run when computing the
+                        distance matrix.
 ```
+
+<!-- help end -->
 
 ## 🤩 Credit
 
