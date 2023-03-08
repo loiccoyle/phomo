@@ -12,7 +12,7 @@
 It arranges the tile images to best recreate a master image. To achieve this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences.
 Once this distance matrix is computed, each tile is assigned to the region of the master with the smallest distance between the colour distributions.
 
-## Installation
+## 📦 Installation
 
 Requires python 3
 
@@ -26,7 +26,7 @@ As always, it is usually a good idea to use a [virtual environment](https://docs
 
 If you're just interested in command line usage, consider using [pipx](https://pypa.github.io/pipx/).
 
-## Usage
+## 📋 Usage
 
 ### Python package
 
@@ -80,11 +80,11 @@ optional arguments:
                         Number of workers use to run when computing the distance matrix.
 ```
 
-## Note
+## 🤩 Credit
 
-The grid subdivision feature was inspired by [photomosaic](https://pypi.org/project/photomosaic/).
+- [photomosaic](https://pypi.org/project/photomosaic/) for the grid subdivision feature.
 
-## TODO
+## ✔️ TODO
 
 - [x] look into parallelizing/multithreading
 - [ ] look into non greedy tile assignments
