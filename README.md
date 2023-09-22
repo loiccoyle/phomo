@@ -46,7 +46,7 @@ If in doubt see the help:
 
 <!-- help start -->
 
-```
+```console
 $ phomo -h
 usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO]
              [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
