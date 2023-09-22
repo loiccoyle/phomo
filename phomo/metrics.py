@@ -42,7 +42,7 @@ def greyscale(
 
 @register_metric
 def norm(master_chunk: np.ndarray, tile_arrays: np.ndarray, **kwargs) -> np.ndarray:
-    """``np.linalg.norm`` distance metric.
+    """Distance metric using ``np.linalg.norm``.
 
     Quick distance metric in RGB space.
 

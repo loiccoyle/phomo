@@ -39,7 +39,7 @@ Once it is installed, you can use the `phomo` command.
 It would go something like:
 
 ```sh
-$ phomo master.png tile_directory -S 20 20 -o mosaic.png
+phomo master.png tile_directory -S 20 20 -o mosaic.png
 ```
 
 If in doubt see the help:

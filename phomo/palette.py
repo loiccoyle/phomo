@@ -1,6 +1,7 @@
 from typing import Tuple
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 
 
@@ -45,7 +46,7 @@ class Palette:
         cdfs /= cdfs[-1]
         return cdfs
 
-    def plot(self, log: bool = False) -> Tuple[plt.Figure, np.ndarray]:
+    def plot(self, log: bool = False) -> Tuple[Figure, np.ndarray]:
         """Plot the colour distribution.
 
         Args:

@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 def rainbow_of_squares(
     target_dir: Path, size: Tuple[int, int] = (10, 10), range_params=(0, 256, 15)
 ) -> None:
-    """Generate 5832 small solid-color tiles for experimentation and testing.
+    """Generate 5832 solid-color tiles for experimentation and testing.
 
     Args:
         target_dir: direcotry in which to place the rainbow tiles.
@@ -18,7 +18,9 @@ def rainbow_of_squares(
         range_params: Passed to ``range()`` to stride through each color channel.
     """
     target_dir.mkdir(exist_ok=True)
-    with tqdm(total=3 * len(range(*range_params))) as pbar:
+    with tqdm(
+        total=3 * len(range(*range_params)), desc="Generating color tiles"
+    ) as pbar:
         canvas = np.ones((*size[::-1], 3))
         for r in range(*range_params):
             for g in range(*range_params):
@@ -36,7 +38,8 @@ def crop_to_ratio(image: Image.Image, ratio: float = 1) -> Image.Image:
 
     Args:
         image: PIL.Image to crop.
-        ratio: width to height ratio to which to crop the image. Use 1 to obtain a square image.
+        ratio: width to height ratio to which to crop the image. Use 1 to obtain a
+            square image.
 
     Returns:
         Cropped PIL.Image.

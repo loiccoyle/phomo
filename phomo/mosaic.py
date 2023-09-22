@@ -35,6 +35,8 @@ class Mosaic:
         Examples:
             Building a mosaic.
 
+            >>> pool = Pool.from_dir("tiles")
+            >>> master = Master.from_file("master.png")
             >>> Mosaic(master, pool, n_appearances=1).build()
         """
         self._log = logging.getLogger(__name__)

@@ -69,7 +69,7 @@ class Pool(Palette):
         self,
         arrays: Sequence[np.ndarray],
     ) -> None:
-        """A Pool of images tiles.
+        """A Pool of tile images.
 
         Args:
             arrays: list of arrays containing the image pixel values. Should

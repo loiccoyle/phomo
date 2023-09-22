@@ -25,7 +25,7 @@ class Master(Palette):
         Args:
             master_image_file: path to image file.
             crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
-            image_size: resize the image to the provided size, width followed by height.
+            img_size: resize the image to the provided size, width followed by height.
             convert: convert the image to the provided mode. See PIL Modes.
 
         Returns:
