@@ -45,7 +45,7 @@ class Palette:
         cdfs /= cdfs[-1]
         return cdfs
 
-    def plot(self, log: bool = False) -> Tuple[plt.Figure, plt.Axes]:
+    def plot(self, log: bool = False) -> Tuple[plt.Figure, np.ndarray]:
         """Plot the colour distribution.
 
         Args:
@@ -56,8 +56,8 @@ class Palette:
         """
 
         bin_edges, values = self.palette()
-        fig, axes = plt.subplots(3, figsize=(12, 6))
-        for i, ax in enumerate(axes):
+        fig, axs = plt.subplots(3, figsize=(12, 6))
+        for i, ax in enumerate(axs):
             ax.bar(
                 bin_edges[:-1, i],
                 values[:, i],
@@ -68,4 +68,4 @@ class Palette:
                 ax.set_yscale("log")
             ax.set_title(f"Channel {i+1}")
         fig.tight_layout()
-        return fig, axes
+        return fig, axs

@@ -1,10 +1,4 @@
-import sys
-
-# prior to python 3.8, Protocol is in typing_extensions
-if sys.version_info[0] == 3 and sys.version_info[1] < 8:
-    from typing_extensions import Protocol
-else:
-    from typing import Protocol
+from typing import Protocol
 
 import numpy as np
 

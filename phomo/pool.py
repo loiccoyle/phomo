@@ -25,7 +25,8 @@ class Pool(Palette):
 
         Args:
             tile_dir: path to directory containing the images.
-            crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
+            crop_ratio: width to height ratio to crop the tile images to. 1 results in a
+                square image.
             tile_size: resize the image to the provided size, width followed by height.
             convert: convert the image to the provided mode. See PIL Modes.
         """
