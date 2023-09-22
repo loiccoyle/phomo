@@ -1,5 +1,5 @@
-<h3 align="center"><img src="https://i.imgur.com/rMze8u5.png" width="1000"></h3>
-<h5 align="center">Python package and CLI utility to create photo mosaics.</h5>
+<p align="center"><img src="https://i.imgur.com/rMze8u5.png" width="1000"></p>
+<p align="center"><b>Python package and CLI utility to create photo mosaics.</b></p>
 
 <p align="center">
   <a href="https://github.com/loiccoyle/phomo/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/phomo/workflows/tests/badge.svg"></a>
