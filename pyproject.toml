@@ -18,14 +18,16 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.9,<3.13"
 Pillow = ">=8.2,<10.0"
 numpy = "^1.22.0"
 tqdm = "^4.60.0"
 matplotlib = "^3.4.1"
-typing-extensions = { version = "^3.10.0", markers = "python_version ~= '3.7'"}
+typing-extensions = { version = "^3.10.0", markers = "python_version ~= '3.7'" }
+scipy = "^1.11.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+notebook = "^7.0.4"
 pytest = "^6.2.5"
 
 [tool.poetry.scripts]

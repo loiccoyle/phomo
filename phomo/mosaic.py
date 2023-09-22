@@ -6,6 +6,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 from PIL import Image
 from tqdm.auto import tqdm
+from scipy.optimize import linear_sum_assignment
 
 from .grid import Grid
 from .master import Master
@@ -101,7 +102,7 @@ class Mosaic:
         if isinstance(metric, str):
             if metric not in METRICS.keys():
                 raise KeyError(
-                    f"'%s' not in available metrics: %s",
+                    "'%s' not in available metrics: %s",
                     metric,
                     repr(list(METRICS.keys())),
                 )
@@ -141,14 +142,14 @@ class Mosaic:
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
         return d_matrix
 
-    def build(
+    def build_greedy(
         self,
         workers: int = 1,
         metric: Union[str, MetricCallable] = "norm",
         d_matrix: Optional[np.ndarray] = None,
         **kwargs,
     ) -> Image.Image:
-        """Construct the mosaic image.
+        """Construct the mosaic image using a greedy tile assignement algorithm.
 
         Args:
             workers: The number of workers to use when computing the
@@ -202,6 +203,63 @@ class Mosaic:
                 placed_tiles.add(tile)
             pbar.update(1)
         pbar.close()
+        return Image.fromarray(np.uint8(mosaic))
+
+    def build(
+        self,
+        workers: int = 1,
+        metric: Union[str, MetricCallable] = "norm",
+        d_matrix: Optional[np.ndarray] = None,
+        **kwargs,
+    ) -> Image.Image:
+        """Construct the mosaic image by solving the linear sum assignment problem.
+        See: https://en.wikipedia.org/wiki/Assignment_problem
+
+        Args:
+            workers: The number of workers to use when computing the
+                distance matrix.
+            metric: The distance metric used for the distance matrix. Either
+                provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
+                Or a callable, which should take two ``np.ndarray``s and return a float.
+            d_matrix: Use a pre-computed distance matrix.
+            **kwargs: Passed to the `metric` function.
+
+        Returns:
+            The PIL.Image instance of the mosaic.
+        """
+        mosaic = np.zeros((self.size[1], self.size[0], 3))
+
+        # Compute the distance matrix.
+        if d_matrix is None:
+            d_matrix = self.compute_d_matrix(workers=workers, metric=metric, **kwargs)
+
+        # expand the dmatrix to allow for repeated tiles
+        if self.n_appearances > 0:
+            d_matrix = np.tile(d_matrix, self.n_appearances)
+        print("dmatrix", d_matrix.shape)
+
+        self._log.info("Computing optimal tile assignment.")
+        row_ind, col_ind = linear_sum_assignment(d_matrix)
+        pbar = tqdm(total=d_matrix.shape[0], desc="Building mosaic")
+        for row, col in zip(row_ind, col_ind):
+            slices = self.grid.slices[row]
+            tile_array = self.pool.arrays[col % len(self.pool.arrays)]
+            # if the grid has been subdivided then the tile should be shrunk to
+            # the size of the subdivision
+            array_size = (
+                slices[1].stop - slices[1].start,
+                slices[0].stop - slices[0].start,
+            )
+            if tile_array.shape[:-1] != array_size[::-1]:
+                tile_array = resize_array(tile_array, array_size)
+
+            # shift slices back so that the centering of the mosaic within the
+            # master image is removed
+            slices = self.grid.remove_origin(slices)
+            mosaic[slices[0], slices[1]] = tile_array
+            pbar.update(1)
+        pbar.close()
+
         return Image.fromarray(np.uint8(mosaic))
 
     def __repr__(self) -> str:
