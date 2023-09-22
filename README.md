@@ -19,7 +19,7 @@ Requires python 3
 In a terminal:
 
 ```sh
-$ pip install phomo
+pip install phomo
 ```
 
 As always, it is usually a good idea to use a [virtual environment](https://docs.python.org/3/library/venv.html).
@@ -95,7 +95,7 @@ options:
 ## ✔️ TODO
 
 - [x] look into parallelizing/multithreading
-- [ ] look into non greedy tile assignments
+- [x] look into non greedy tile assignments
 - [ ] palette matching
 - [ ] documentation
 - [ ] shell completion
