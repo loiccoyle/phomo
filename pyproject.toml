@@ -19,7 +19,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
-Pillow = ">=8.2,<10.0"
+Pillow = ">=8.2,<11.0"
 numpy = "^1.22.0"
 tqdm = "^4.60.0"
 matplotlib = "^3.4.1"
