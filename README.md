@@ -2,7 +2,7 @@
 <p align="center"><b>Python package and CLI utility to create photo mosaics.</b></p>
 
 <p align="center">
-  <a href="https://github.com/loiccoyle/phomo/actions?query=workflow%3Atests"><img src="https://github.com/loiccoyle/phomo/workflows/tests/badge.svg"></a>
+  <a href="https://github.com/loiccoyle/phomo/actions"><img src="https://github.com/loiccoyle/phomo/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://pypi.org/project/phomo/"><img src="https://img.shields.io/pypi/v/phomo"></a>
   <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <img src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-informational">
