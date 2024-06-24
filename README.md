@@ -14,8 +14,6 @@ Once this distance matrix is computed, each tile is assigned to the optimal mast
 
 ## 📦 Installation
 
-Requires python 3
-
 In a terminal:
 
 ```sh
@@ -29,6 +27,9 @@ pip install 'phomo[cuda]'
 As always, it is usually a good idea to use a [virtual environment](https://docs.python.org/3/library/venv.html).
 
 If you're just interested in command line usage, consider using [pipx](https://pypa.github.io/pipx/).
+
+> [!NOTE]
+> For GPU acceleration you'll need a CUDA compatible GPU and the CUDA toolkit installed. See [numba docs](https://numba.readthedocs.io/en/stable/cuda/overview.html#requirements) for details.
 
 ## 📋 Usage
 
