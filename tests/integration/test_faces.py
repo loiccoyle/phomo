@@ -12,7 +12,6 @@ FACES_TAR = Path(__file__).parents[1] / "data" / "faces.tar.gz"
 
 
 def is_within_directory(directory, target):
-
     abs_directory = os.path.abspath(directory)
     abs_target = os.path.abspath(target)
 
@@ -22,7 +21,6 @@ def is_within_directory(directory, target):
 
 
 def safe_extract(tar, path=Path("."), members=None, *, numeric_owner=False):
-
     for member in tar.getmembers():
         member_path = os.path.join(path, member.name)
         if not is_within_directory(path, member_path):
@@ -48,7 +46,7 @@ class TestFaces(TestCase):
         pool = Pool.from_dir(self.data_dir, crop_ratio=1, tile_size=(20, 20))
         master = Master.from_file(self.master_file, crop_ratio=1, img_size=(200, 200))
         mosaic = Mosaic(master, pool)
-        mosaic_img = mosaic.build(workers=2)
+        mosaic_img = mosaic.build(mosaic.d_matrix(workers=2))
         assert mosaic_img.size == mosaic.size
 
     def test_cli(self):

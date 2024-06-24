@@ -1,12 +1,13 @@
 import logging
+import math
 from functools import partial
 from multiprocessing.pool import Pool as MpPool
-from typing import Optional, Tuple, Union
+from typing import Literal, Tuple, Union
 
 import numpy as np
 from PIL import Image
-from tqdm.auto import tqdm
 from scipy.optimize import linear_sum_assignment
+from tqdm.auto import tqdm
 
 from .grid import Grid
 from .master import Master
@@ -82,7 +83,7 @@ class Mosaic:
             array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
         return metric_func(array, self.pool.arrays, **kwargs)
 
-    def compute_d_matrix(
+    def d_matrix(
         self,
         workers: int = 1,
         metric: Union[str, MetricCallable] = "norm",
@@ -144,13 +145,81 @@ class Mosaic:
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
         return d_matrix
 
-    def build_greedy(
-        self,
-        workers: int = 1,
-        metric: Union[str, MetricCallable] = "norm",
-        d_matrix: Optional[np.ndarray] = None,
-        **kwargs,
-    ) -> Image.Image:
+    def d_matrix_cuda(
+        self, metric: Literal["norm"] | Literal["greyscale"] = "norm"
+    ) -> np.ndarray:
+        """Compute the distance matrix using CUDA for GPU acceleration.
+
+        Args:
+            metric: The distance metric used for the distance matrix. Either "norm" or "greyscale".
+
+        Returns:
+            Distance matrix, shape: (number of master arrays, number of tiles in the pool).
+        """
+
+        try:
+            from numba import cuda
+        except ImportError:
+            raise ImportError(
+                "Numba is required for CUDA support, run \"pip install 'phomo[cuda]'\" to install it."
+            )
+
+        if metric not in ["norm", "greyscale"]:
+            raise ValueError(
+                f"Invalid metric '{metric}'. When using gpu `metric' must be 'norm' or 'greyscale'."
+            )
+
+        self._log.info("Computing distance matrix with CUDA.")
+
+        # when the grid has been subdivided the master arrays will be smaller, so we grow them to match
+        # the tile size
+        grid_arrays = [
+            array
+            if array.shape == self.tile_shape
+            else resize_array(array, self.tile_shape)
+            for array in self.grid.arrays
+        ]
+        pool_arrays = self.pool.arrays
+        if metric == "greyscale":
+            grid_arrays = [array.sum(axis=-1, keepdims=True) for array in grid_arrays]
+            pool_arrays = [array.sum(axis=-1, keepdims=True) for array in pool_arrays]
+
+        # Transfer the master and pool arrays to the GPU.
+        master_arrays_device = cuda.to_device(grid_arrays)
+        pool_arrays_device = cuda.to_device(pool_arrays)
+
+        # Allocate memory for the distance matrix on the GPU.
+        d_matrix_device = cuda.device_array((len(grid_arrays), len(pool_arrays)))
+
+        # Define the CUDA kernel for computing the distance matrix.
+        @cuda.jit
+        def compute_d_matrix_kernel(master_arrays, pool_arrays, d_matrix):
+            i, j = cuda.grid(2)  # type: ignore
+            if i < master_arrays.shape[0] and j < pool_arrays.shape[0]:
+                distance = 0.0
+                for x in range(master_arrays.shape[1]):
+                    for y in range(master_arrays.shape[2]):
+                        for c in range(master_arrays.shape[3]):
+                            diff = master_arrays[i, x, y, c] - pool_arrays[j, x, y, c]
+                            distance += diff * diff
+                d_matrix[i, j] = math.sqrt(distance)
+
+        # Define the number of threads per block and blocks per grid.
+        threads_per_block = (16, 16)
+        blocks_per_grid_x = math.ceil(len(grid_arrays) / threads_per_block[0])
+        blocks_per_grid_y = math.ceil(len(pool_arrays) / threads_per_block[1])
+        blocks_per_grid = (blocks_per_grid_x, blocks_per_grid_y)
+
+        # Launch the kernel.
+        compute_d_matrix_kernel[blocks_per_grid, threads_per_block](  # type: ignore
+            master_arrays_device, pool_arrays_device, d_matrix_device
+        )
+
+        self._log.debug("d_matrix shape: %s", d_matrix_device.shape)
+        # Copy the result back to the host.
+        return d_matrix_device.copy_to_host()
+
+    def build_greedy(self, d_matrix: np.ndarray) -> Image.Image:
         """Construct the mosaic image using a greedy tile assignement algorithm.
 
         Args:
@@ -166,10 +235,6 @@ class Mosaic:
             The PIL.Image instance of the mosaic.
         """
         mosaic = np.zeros((self.size[1], self.size[0], 3))
-
-        # Compute the distance matrix.
-        if d_matrix is None:
-            d_matrix = self.compute_d_matrix(workers=workers, metric=metric, **kwargs)
 
         # Keep track of tiles and sub arrays.
         placed_master_arrays = set()
@@ -207,13 +272,7 @@ class Mosaic:
         pbar.close()
         return Image.fromarray(np.uint8(mosaic))
 
-    def build(
-        self,
-        workers: int = 1,
-        metric: Union[str, MetricCallable] = "norm",
-        d_matrix: Optional[np.ndarray] = None,
-        **kwargs,
-    ) -> Image.Image:
+    def build(self, d_matrix: np.ndarray) -> Image.Image:
         """Construct the mosaic image by solving the linear sum assignment problem.
         See: https://en.wikipedia.org/wiki/Assignment_problem
 
@@ -230,10 +289,6 @@ class Mosaic:
             The PIL.Image instance of the mosaic.
         """
         mosaic = np.zeros((self.size[1], self.size[0], 3))
-
-        # Compute the distance matrix.
-        if d_matrix is None:
-            d_matrix = self.compute_d_matrix(workers=workers, metric=metric, **kwargs)
 
         # expand the dmatrix to allow for repeated tiles
         if self.n_appearances > 0:
