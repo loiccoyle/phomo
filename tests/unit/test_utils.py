@@ -10,7 +10,7 @@ from phomo import utils
 
 class TestUtils(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpClass(cls):
         # create test directory
         cls.test_dir = Path("test_utils")
         if not cls.test_dir.is_dir():
