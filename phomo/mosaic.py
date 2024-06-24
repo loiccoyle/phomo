@@ -38,7 +38,8 @@ class Mosaic:
 
             >>> pool = Pool.from_dir("tiles")
             >>> master = Master.from_file("master.png")
-            >>> Mosaic(master, pool, n_appearances=1).build()
+            >>> mosaic = Mosaic(master, pool, n_appearances=1)
+            >>> mosaic.build(mosaic.d_matrix())
         """
         self._log = logging.getLogger(__name__)
         self.master = master
@@ -275,16 +276,19 @@ class Mosaic:
         See: https://en.wikipedia.org/wiki/Assignment_problem
 
         Args:
-            workers: The number of workers to use when computing the
-                distance matrix.
-            metric: The distance metric used for the distance matrix. Either
-                provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
-                Or a callable, which should take two ``np.ndarray``s and return a float.
-            d_matrix: Use a pre-computed distance matrix.
-            **kwargs: Passed to the `metric` function.
+            d_matrix: The distanace matrix to use to build the mosaic.
 
         Returns:
             The PIL.Image instance of the mosaic.
+
+        Examples:
+            Building a mosaic.
+
+            >>> mosaic.build(mosaic.d_matrix())
+
+            On a GPU.
+
+            >>> mosaic.build(mosaic.d_matrix_cuda())
         """
         mosaic = np.zeros((self.size[1], self.size[0], 3))
 
