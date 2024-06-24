@@ -10,7 +10,7 @@ from phomo import Master
 
 class TestMaster(TestCase):
     @classmethod
-    def setUp(cls):
+    def setUpClass(cls):
         cls.test_dir = Path("test_master")
         if not cls.test_dir.is_dir():
             cls.test_dir.mkdir()
@@ -52,6 +52,6 @@ class TestMaster(TestCase):
         self.master.plot()
 
     @classmethod
-    def tearDown(cls):
+    def tearDownClass(cls):
         if cls.test_dir.is_dir():
             rmtree(cls.test_dir)

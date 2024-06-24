@@ -51,7 +51,6 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         nargs="+",
         default=None,
     )
-
     parser.add_argument(
         "-C",
         "--tile-crop-ratio",
@@ -75,13 +74,6 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         default=1,
     )
     parser.add_argument(
-        "-v",
-        "--verbose",
-        help="Verbosity.",
-        action="count",
-        default=0,
-    ),
-    parser.add_argument(
         "-b",
         "--black-and-white",
         help="Convert master and tile images to black and white.",
@@ -102,6 +94,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         type=float,
     )
     parser.add_argument(
+        "-G",
+        "--gpu",
+        help="Use GPU for distance matrix computation. Requires installing with `pip install 'phomo[cuda]'`.",
+        action="store_true",
+    )
+    parser.add_argument(
         "-m",
         "--metric",
         help="Distance metric.",
@@ -115,6 +113,13 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Number of workers use to run when computing the distance matrix.",
         default=1,
         type=int,
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Verbosity.",
+        action="count",
+        default=0,
     )
     return parser.parse_args(args)
 
@@ -180,7 +185,12 @@ def main():
         grid_im = mosaic.grid.plot()
         grid_im.show()
     else:
-        mosaic_im = mosaic.build(workers=args.workers, metric=args.metric)
+        d_matrix = (
+            mosaic.d_matrix(metric=args.metric, workers=args.workers)
+            if not args.gpu
+            else mosaic.d_matrix_cuda(metric=args.metric)
+        )
+        mosaic_im = mosaic.build(d_matrix)
         if args.output is None:
             mosaic_im.show()
         else:

@@ -20,6 +20,10 @@ In a terminal:
 
 ```sh
 pip install phomo
+
+# or for GPU acceleration:
+
+pip install 'phomo[cuda]'
 ```
 
 As always, it is usually a good idea to use a [virtual environment](https://docs.python.org/3/library/venv.html).
@@ -39,7 +43,7 @@ Once it is installed, you can use the `phomo` command.
 It would go something like:
 
 ```sh
-phomo master.png tile_directory -S 20 20 -o mosaic.png
+phomo master.png tile_directory/ -S 20 20 -o mosaic.png
 ```
 
 If in doubt see the help:
@@ -50,9 +54,9 @@ If in doubt see the help:
 $ phomo -h
 usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO]
              [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
-             [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-v] [-b] [-g]
-             [-d SUBDIVISIONS [SUBDIVISIONS ...]]
-             [-m {greyscale,norm,luv_approx}] [-j WORKERS]
+             [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-b] [-g]
+             [-d SUBDIVISIONS [SUBDIVISIONS ...]] [-G]
+             [-m {greyscale,norm,luv_approx}] [-j WORKERS] [-v]
              master tile_dir
 
 positional arguments:
@@ -73,17 +77,19 @@ options:
                         Resize tile images to width, height.
   -n N_APPEARANCES, --n-appearances N_APPEARANCES
                         The number of times a tile can appear in the mosaic.
-  -v, --verbose         Verbosity.
   -b, --black-and-white
                         Convert master and tile images to black and white.
   -g, --show-grid       Show the tile grid, don't build the mosiac.
   -d SUBDIVISIONS [SUBDIVISIONS ...], --subdivisions SUBDIVISIONS [SUBDIVISIONS ...]
                         Grid subdivision thresholds.
+  -G, --gpu             Use GPU for distance matrix computation. Requires
+                        installing with `pip install 'phomo[cuda]'`.
   -m {greyscale,norm,luv_approx}, --metric {greyscale,norm,luv_approx}
                         Distance metric.
   -j WORKERS, --workers WORKERS
                         Number of workers use to run when computing the
                         distance matrix.
+  -v, --verbose         Verbosity.
 ```
 
 <!-- help end -->

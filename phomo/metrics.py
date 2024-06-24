@@ -6,8 +6,9 @@ METRICS = {}
 
 
 class MetricCallable(Protocol):  # type: ignore
-    def __call__(self, master_chunk: np.ndarray, tile_arrays: np.ndarray) -> np.ndarray:
-        ...
+    def __call__(
+        self, master_chunk: np.ndarray, tile_arrays: np.ndarray
+    ) -> np.ndarray: ...
 
 
 def register_metric(func):
@@ -107,6 +108,7 @@ def luv_approx(
             arrays.
     """
     r = (master_chunk[:, :, 0] + tile_arrays[:, :, :, 0]) // 2
+    r = r.astype(float)
     d = np.subtract(master_chunk, tile_arrays, dtype=float)
     return np.linalg.norm(
         (

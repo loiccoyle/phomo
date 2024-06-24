@@ -8,7 +8,8 @@ import numpy as np
 class Palette:
     """Colour palette methods."""
 
-    pixels: np.ndarray
+    @property
+    def pixels(self) -> np.ndarray: ...
 
     def palette(self, **kwargs) -> Tuple[np.ndarray, np.ndarray]:
         """Compute the colour distribution.

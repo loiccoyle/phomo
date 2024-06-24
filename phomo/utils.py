@@ -111,7 +111,8 @@ def open_img_file(
         Image instance.
     """
     with Image.open(img_file) as img:
-        img = exif_transpose(img)
+        img_t = exif_transpose(img)
+        img = img_t if img_t is not None else img
         if crop_ratio is not None:
             img = crop_to_ratio(img, crop_ratio)
         if size is not None:
