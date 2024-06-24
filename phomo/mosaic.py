@@ -295,7 +295,6 @@ class Mosaic:
         # expand the dmatrix to allow for repeated tiles
         if self.n_appearances > 0:
             d_matrix = np.tile(d_matrix, self.n_appearances)
-        print("dmatrix", d_matrix.shape)
 
         self._log.info("Computing optimal tile assignment.")
         row_ind, col_ind = linear_sum_assignment(d_matrix)
