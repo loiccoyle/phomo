@@ -2,7 +2,7 @@ import logging
 import math
 from functools import partial
 from multiprocessing.pool import Pool as MpPool
-from typing import Literal, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -145,9 +145,7 @@ class Mosaic:
         self._log.debug("d_matrix shape: %s", d_matrix.shape)
         return d_matrix
 
-    def d_matrix_cuda(
-        self, metric: Literal["norm"] | Literal["greyscale"] = "norm"
-    ) -> np.ndarray:
+    def d_matrix_cuda(self, metric: str = "norm") -> np.ndarray:
         """Compute the distance matrix using CUDA for GPU acceleration.
 
         Args:
