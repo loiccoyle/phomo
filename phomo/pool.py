@@ -21,14 +21,15 @@ class Pool(Palette):
         convert: Optional[str] = None,
         **kwargs,
     ) -> "Pool":
-        """Create a Pool instance from the images in a directory.
+        """Create a `Pool` instance from the images in a directory.
 
         Args:
             tile_dir: path to directory containing the images.
             crop_ratio: width to height ratio to crop the tile images to. 1 results in a
                 square image.
             tile_size: resize the image to the provided size, width followed by height.
-            convert: convert the image to the provided mode. See PIL Modes.
+            convert: convert the image to the provided mode.
+                See [PIL Modes](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes).
         """
         if not isinstance(tile_dir, Path):
             tile_dir = Path(tile_dir)
@@ -52,13 +53,14 @@ class Pool(Palette):
         convert: Optional[str] = None,
         **kwargs,
     ) -> "Pool":
-        """Create a Pool instance from a list of images.
+        """Create a `Pool` instance from a list of images.
 
         Args:
             files: list of paths to the tile images.
             crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
             tile_size: resize the image to the provided size, width followed by height.
-            convert: convert the image to the provided mode. See PIL Modes.
+            convert: convert the image to the provided mode.
+                See [PIL Modes](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes).
         """
         arrays = cls._load_files(
             files, crop_ratio=crop_ratio, size=tile_size, convert=convert
@@ -69,7 +71,7 @@ class Pool(Palette):
         self,
         arrays: Sequence[np.ndarray],
     ) -> None:
-        """A Pool of tile images.
+        """A `Pool` of tile images.
 
         Args:
             arrays: list of arrays containing the image pixel values. Should
@@ -119,7 +121,7 @@ class Pool(Palette):
 
 
 class PoolTiles:
-    """Helper interface to access of PIL.Image instances of the tiles."""
+    """Helper interface to access of `PIL.Image` instances of the tiles."""
 
     def __init__(self, arrays: np.ndarray) -> None:
         self._arrays = arrays

@@ -31,7 +31,7 @@ class Palette:
         bin_edges = np.vstack(bin_edges).T
         return bin_edges, values
 
-    def cdfs(self):
+    def cdfs(self) -> Tuple[np.ndarray, np.ndarray]:
         """Compute the cumulative distribution functions of the colours ditributions.
 
         Returns:
@@ -54,7 +54,7 @@ class Palette:
             log: Plot y axis in log scale.
 
         Returns:
-            Plot figure and axes.
+            `maplplotlib.Figure` and `np.array` of `maplotlib.Axes`.
         """
 
         bin_edges, values = self.palette()

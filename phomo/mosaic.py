@@ -222,13 +222,7 @@ class Mosaic:
         """Construct the mosaic image using a greedy tile assignement algorithm.
 
         Args:
-            workers: The number of workers to use when computing the
-                distance matrix.
-            metric: The distance metric used for the distance matrix. Either
-                provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
-                Or a callable, which should take two ``np.ndarray``s and return a float.
             d_matrix: Use a pre-computed distance matrix.
-            **kwargs: Passed to the `metric` function.
 
         Returns:
             The PIL.Image instance of the mosaic.
@@ -295,7 +289,6 @@ class Mosaic:
         # expand the dmatrix to allow for repeated tiles
         if self.n_appearances > 0:
             d_matrix = np.tile(d_matrix, self.n_appearances)
-        print("dmatrix", d_matrix.shape)
 
         self._log.info("Computing optimal tile assignment.")
         row_ind, col_ind = linear_sum_assignment(d_matrix)

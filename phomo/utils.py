@@ -8,7 +8,9 @@ from tqdm.auto import tqdm
 
 
 def rainbow_of_squares(
-    target_dir: Path, size: Tuple[int, int] = (10, 10), range_params=(0, 256, 15)
+    target_dir: Path,
+    size: Tuple[int, int] = (10, 10),
+    range_params: Tuple[int, int, int] = (0, 256, 15),
 ) -> None:
     """Generate 5832 solid-color tiles for experimentation and testing.
 
