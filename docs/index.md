@@ -22,7 +22,7 @@
 
 `phomo` requires python 3.9 or later. It can be installed with or without GPU acceleration.
 
-/// admonition | Gpu acceleration
+/// admonition | GPU acceleration
 For GPU acceleration you'll need a CUDA compatible GPU and the CUDA toolkit installed. See [numba docs](https://numba.readthedocs.io/en/stable/cuda/overview.html#requirements) for details.
 ///
 
