@@ -31,4 +31,4 @@ jobs:
       - name: Install doc dependencies
         run: poetry install --with docs
       - name: Deploy docs
-        run: mkdocs gh-deploy --force
+        run: poetry run mkdocs gh-deploy --force
