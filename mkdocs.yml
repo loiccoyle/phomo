@@ -1,6 +1,7 @@
 site_name: phomo
 site_description: Python package and CLI utility to create photo mosaics.
 site_author: Loic Coyle
+site_url: https://loiccoyle.com/phomo
 
 repo_name: phomo
 repo_url: https://github.com/loiccoyle/phomo
