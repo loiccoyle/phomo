@@ -6,6 +6,8 @@ site_url: https://loiccoyle.com/phomo
 repo_name: phomo
 repo_url: https://github.com/loiccoyle/phomo
 
+edit_uri: edit/main/docs/
+
 theme:
   name: material
   logo: logo.png
