@@ -103,7 +103,7 @@ options:
 
 - [x] look into parallelizing/multithreading
 - [x] look into non greedy tile assignments
+- [x] documentation
 - [ ] palette matching
-- [ ] documentation
 - [ ] shell completion
 - [ ] hex grid
