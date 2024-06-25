@@ -222,13 +222,7 @@ class Mosaic:
         """Construct the mosaic image using a greedy tile assignement algorithm.
 
         Args:
-            workers: The number of workers to use when computing the
-                distance matrix.
-            metric: The distance metric used for the distance matrix. Either
-                provide a string, for implemented metrics see ``phomo.metrics.METRICS``.
-                Or a callable, which should take two ``np.ndarray``s and return a float.
             d_matrix: Use a pre-computed distance matrix.
-            **kwargs: Passed to the `metric` function.
 
         Returns:
             The PIL.Image instance of the mosaic.

@@ -29,7 +29,7 @@ class Master(Palette):
             convert: convert the image to the provided mode. See PIL Modes.
 
         Returns:
-            Master instance.
+            Master image instance.
 
         Examples:
             For black and white square 1280x1280 image.
@@ -46,10 +46,10 @@ class Master(Palette):
         """Create a master image from PIL.Image.Image
 
         Args:
-            master_image: PIL.Image instance.
+            master_image: `PIL.Image` instance.
 
         Returns:
-            Master instance.
+            Master image instance.
         """
         array = np.asarray(master_image)
         # make sure the arrays have 3 channels even in black and white
@@ -64,7 +64,7 @@ class Master(Palette):
             array: numpy array of the image, should contain 3 channels.
 
         Returns:
-            Master instance.
+            Master image instance.
         """
         self.array = array
         self._log = logging.getLogger(__name__)
@@ -72,12 +72,12 @@ class Master(Palette):
 
     @property
     def img(self):
-        """PIL.Image of the Master image."""
+        """`PIL.Image` of the master image."""
         return Image.fromarray(self.array.round(0).astype("uint8"), mode="RGB")
 
     @property
     def pixels(self) -> np.ndarray:
-        """Array containing the 3-channel pixel values of the Master image."""
+        """Array containing the 3-channel pixel values of the master image."""
         return self.array.reshape(-1, self.array.shape[-1])
 
     def __repr__(self) -> str:
