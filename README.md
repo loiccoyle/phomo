@@ -108,12 +108,3 @@ options:
 ## 🤩 Credit
 
 - [photomosaic](https://pypi.org/project/photomosaic/) for the grid subdivision feature.
-
-## ✔️ TODO
-
-- [x] look into parallelizing/multithreading
-- [x] look into non greedy tile assignments
-- [x] documentation
-- [ ] palette matching
-- [ ] shell completion
-- [ ] hex grid
