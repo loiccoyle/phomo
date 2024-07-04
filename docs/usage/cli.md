@@ -28,6 +28,9 @@ phomo <master-image-path> <tile-directory-path> [options]
 - `-G, --gpu`: Use GPU for distance matrix computation. Requires installing with `pip install 'phomo[cuda]'`.
 - `-m {greyscale,norm,luv_approx}, --metric {greyscale,norm,luv_approx}`: Distance metric.
 - `-j WORKERS, --workers WORKERS`: Number of workers use to run when computing the distance matrix.
+- `-e, --equalize`: Equalize the colour distributions to cover the full colour space.
+- `--match-master-to-tiles`: Match the master image's colour distribution with the tile image colours.
+- `--match-tiles-to-master`: Match the tile images' colour distribution with the master image colours.
 - `-v, --verbose`: Verbosity.
 
 ## Examples
