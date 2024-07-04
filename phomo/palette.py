@@ -73,7 +73,15 @@ class Palette:
 
     def match(self, other: "Palette"):
         """Match the colour distribution of the `Master` to the distribution of the
-        `Pool` using the Reinhard color transfer algorithm.
+        `Pool` using the colour transfer algorithm explained in this paper:
+
+        https://api.semanticscholar.org/CorpusID:14088925
+
+        Args:
+            The other `Palette` to match this `Palette`'s colour distribution to.
+
+        Returns:
+            A new `Palette` with it's colour distribution matched the `other` `Palette`.
         """
         self_shape = self.array.shape
         self_array = self.array.reshape(-1, self.array.shape[1], 3)
