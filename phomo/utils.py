@@ -1,3 +1,4 @@
+from os import PathLike
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -10,23 +11,27 @@ from tqdm.auto import tqdm
 def rainbow_of_squares(
     target_dir: Path,
     size: Tuple[int, int] = (10, 10),
-    range_params: Tuple[int, int, int] = (0, 256, 15),
+    r_range: range = range(0, 256, 15),
+    g_range: range = range(0, 256, 15),
+    b_range: range = range(0, 256, 15),
 ) -> None:
-    """Generate 5832 solid-color tiles for experimentation and testing.
+    """Generate a bunch of solid-color tiles for experimentation and testing.
 
     Args:
         target_dir: direcotry in which to place the rainbow tiles.
         size: size of the images, width followed by height.
-        range_params: Passed to ``range()`` to stride through each color channel.
+        r_range_params: Passed to ``range()`` to stride through the red channel.
+        g_range_params: Passed to ``range()`` to stride through the green channel.
+        b_range_params: Passed to ``range()`` to stride through the blue channel.
     """
     target_dir.mkdir(exist_ok=True)
     with tqdm(
-        total=3 * len(range(*range_params)), desc="Generating color tiles"
+        total=len(r_range) + len(g_range) + len(b_range), desc="Generating color tiles"
     ) as pbar:
         canvas = np.ones((*size[::-1], 3))
-        for r in range(*range_params):
-            for g in range(*range_params):
-                for b in range(*range_params):
+        for r in r_range:
+            for g in g_range:
+                for b in b_range:
                     img = (canvas * [r, g, b]).astype(np.uint8)
                     filename = "{:03d}-{:03d}-{:03d}.png".format(r, g, b)
                     img = Image.fromarray(img, mode="RGB")
@@ -96,10 +101,10 @@ def crop_to_ratio(image: Image.Image, ratio: float = 1) -> Image.Image:
 
 
 def open_img_file(
-    img_file: Path,
+    img_file: PathLike,
     crop_ratio: Optional[float] = None,
     size: Optional[Tuple[int, int]] = None,
-    convert: Optional[str] = None,
+    mode: Optional[str] = None,
 ) -> Image.Image:
     """Open an image file with some extra bells and whistles.
 
@@ -107,7 +112,7 @@ def open_img_file(
         img_file: path to the image.
         crop_ratio: width to height to which to crop the image.
         size: resize image.
-        convert: convert the image to the provided mode. See PIL image modes.
+        mode: convert the image to the provided mode. See PIL image modes.
 
     Returns:
         Image instance.
@@ -119,8 +124,8 @@ def open_img_file(
             img = crop_to_ratio(img, crop_ratio)
         if size is not None:
             img = img.resize(size)
-        if convert is not None:
-            img = img.convert(convert)
+        if mode is not None:
+            img = img.convert(mode)
         else:
             img = img.convert("RGB")
     return img

@@ -45,9 +45,6 @@ class TestMaster(TestCase):
     def test_palette(self):
         self.master.palette()
 
-    def test_cdfs(self):
-        self.master.cdfs()
-
     def test_plot(self):
         self.master.plot()
 

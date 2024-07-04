@@ -28,14 +28,18 @@ class TestUtils(TestCase):
 
     def test_rainbow_of_squares(self):
         # create the squares
-        range_params = (0, 256, 15)
+        channel_range = range(0, 256, 15)
         shape = (20, 10)
         utils.rainbow_of_squares(
-            self.rainbow_dir, size=shape, range_params=range_params
+            self.rainbow_dir,
+            size=shape,
+            r_range=channel_range,
+            g_range=channel_range,
+            b_range=channel_range,
         )
         tiles = list(self.rainbow_dir.glob("*"))
         # check the number of tiles created
-        assert len(tiles) == len(list(range(*range_params))) ** 3
+        assert len(tiles) == len(list(channel_range)) ** 3
         # check the size of the tiles
         img = Image.open(tiles[0])
         assert img.size == shape
@@ -60,7 +64,7 @@ class TestUtils(TestCase):
         assert img.size == (32, 64)
         # convert to mode
         img = utils.open_img_file(
-            self.test_img_file, crop_ratio=2, size=(32, 64), convert="L"
+            self.test_img_file, crop_ratio=2, size=(32, 64), mode="L"
         )
         assert img.size == (32, 64)
         assert img.mode == "L"

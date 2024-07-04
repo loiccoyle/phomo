@@ -29,7 +29,14 @@ class TestMosaic(TestCase):
         cls.tile_dir = cls.test_dir / "rainbow"
         if not cls.tile_dir.is_dir():
             cls.tile_dir.mkdir()
-        utils.rainbow_of_squares(cls.tile_dir, size=(50, 50), range_params=(0, 255, 60))
+        channel_range = range(0, 255, 60)
+        utils.rainbow_of_squares(
+            cls.tile_dir,
+            size=(50, 50),
+            r_range=channel_range,
+            g_range=channel_range,
+            b_range=channel_range,
+        )
         cls.tile_paths = list(cls.tile_dir.glob("*"))
         # create test pool
         cls.pool = Pool.from_dir(cls.tile_dir)
@@ -37,7 +44,7 @@ class TestMosaic(TestCase):
         cls.mosaic = Mosaic(cls.master, cls.pool)
 
     def test_tile_shape(self):
-        assert self.mosaic.tile_shape == self.pool.arrays[0].shape[:-1]
+        assert self.mosaic.tile_shape == self.pool.array[0].shape[:-1]
 
     def test_size(self):
         assert self.mosaic.size == (500, 550)

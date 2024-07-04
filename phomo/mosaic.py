@@ -2,7 +2,8 @@ import logging
 import math
 from functools import partial
 from multiprocessing.pool import Pool as MpPool
-from typing import Tuple, Union
+from os import PathLike
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
@@ -15,8 +16,44 @@ from .metrics import METRICS, MetricCallable
 from .pool import Pool
 from .utils import resize_array
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Mosaic:
+    @classmethod
+    def from_file_and_dir(
+        cls,
+        master_file: PathLike,
+        tile_dir: PathLike,
+        *args,
+        master_crop_ratio: Optional[float] = None,
+        master_size: Optional[Tuple[int, int]] = None,
+        master_mode: Optional[str] = None,
+        tile_crop_ratio: Optional[float] = None,
+        tile_size: Optional[Tuple[int, int]] = None,
+        tile_mode: Optional[str] = None,
+        **kwargs,
+    ) -> "Mosaic":
+        """Construct a `Mosaic` from a master image file and a directory containing the file images.
+
+        Args:
+            master_file: The master image file.
+            tile_dir: the directory containing the tile images.
+
+        Returns:
+            A `Mosaic` to construct the `master_file` using the tile images in the `tile_dir`.
+        """
+        master = Master.from_file(
+            master_file,
+            crop_ratio=master_crop_ratio,
+            img_size=master_size,
+            mode=master_mode,
+        )
+        pool = Pool.from_dir(
+            tile_dir, tile_size=tile_size, crop_ratio=tile_crop_ratio, mode=tile_mode
+        )
+        return cls(master, pool, *args, **kwargs)
+
     def __init__(
         self,
         master: Master,
@@ -29,8 +66,8 @@ class Mosaic:
             The Pool's tiles should all be the same size.
 
         Args:
-            master: Master image to reconstruct.
-            pool: Tile image pool with which to reconstruct the Master image.
+            master: `Master` image to reconstruct.
+            pool: Tile image pool with which to reconstruct the `Master` image.
             n_appearances: Number of times a tile can appear in the mosaic.
 
         Examples:
@@ -41,12 +78,11 @@ class Mosaic:
             >>> mosaic = Mosaic(master, pool, n_appearances=1)
             >>> mosaic.build(mosaic.d_matrix())
         """
-        self._log = logging.getLogger(__name__)
         self.master = master
-        if len(set([array.size for array in pool.arrays])) != 1:
+        if len(set([array.size for array in pool.array])) != 1:
             raise ValueError("Pool tiles sizes are not identical.")
         self.pool = pool
-        self.tile_shape = (self.pool.arrays[0].shape[0], self.pool.arrays[0].shape[1])
+        self.tile_shape = (self.pool.array[0].shape[0], self.pool.array[0].shape[1])
         self.n_appearances = n_appearances
         self.grid = Grid(self.master, (self.size[1], self.size[0]), self.tile_shape)
 
@@ -82,7 +118,7 @@ class Mosaic:
             # this isn't exact because we are upscalling the master array
             # we should be shrinking all the tile arrays but that is slower
             array = resize_array(array, (self.tile_shape[1], self.tile_shape[0]))
-        return metric_func(array, self.pool.arrays, **kwargs)
+        return metric_func(array, self.pool.array, **kwargs)
 
     def d_matrix(
         self,
@@ -110,16 +146,16 @@ class Mosaic:
                     metric,
                     repr(list(METRICS.keys())),
                 )
-            self._log.info("Using metric '%s'", metric)
+            LOGGER.info("Using metric '%s'", metric)
             metric_func = METRICS[metric]
         else:
-            self._log.info("Using user provided distance metric function.")
+            LOGGER.info("Using user provided distance metric function.")
             metric_func = metric
 
         # Compute the distance matrix.
         worker = partial(self._d_matrix_worker, metric_func=metric_func, **kwargs)
         if workers != 1:
-            self._log.info("Computing distance matrix with %i workers.", workers)
+            LOGGER.info("Computing distance matrix with %i workers.", workers)
             with MpPool(processes=workers) as pool:
                 d_matrix = np.array(
                     list(
@@ -136,14 +172,14 @@ class Mosaic:
                 )
         else:
             # get rid of pool overhead if serial computation is desired.
-            self._log.info("Computing distance matrix in serial.")
+            LOGGER.info("Computing distance matrix in serial.")
             d_matrix = np.array(
                 [
                     worker(array)
                     for array in tqdm(self.grid.arrays, desc="Building distance matrix")
                 ]
             )
-        self._log.debug("d_matrix shape: %s", d_matrix.shape)
+        LOGGER.debug("d_matrix shape: %s", d_matrix.shape)
         return d_matrix
 
     def d_matrix_cuda(self, metric: str = "norm") -> np.ndarray:
@@ -168,7 +204,7 @@ class Mosaic:
                 f"Invalid metric '{metric}'. When using gpu `metric' must be 'norm' or 'greyscale'."
             )
 
-        self._log.info("Computing distance matrix with CUDA.")
+        LOGGER.info("Computing distance matrix with CUDA.")
 
         # when the grid has been subdivided the master arrays will be smaller, so we grow them to match
         # the tile size
@@ -178,7 +214,7 @@ class Mosaic:
             else resize_array(array, self.tile_shape)
             for array in self.grid.arrays
         ]
-        pool_arrays = self.pool.arrays
+        pool_arrays = self.pool.array
         if metric == "greyscale":
             grid_arrays = [array.sum(axis=-1, keepdims=True) for array in grid_arrays]
             pool_arrays = [array.sum(axis=-1, keepdims=True) for array in pool_arrays]
@@ -214,18 +250,21 @@ class Mosaic:
             master_arrays_device, pool_arrays_device, d_matrix_device
         )
 
-        self._log.debug("d_matrix shape: %s", d_matrix_device.shape)
+        LOGGER.debug("d_matrix shape: %s", d_matrix_device.shape)
         # Copy the result back to the host.
         return d_matrix_device.copy_to_host()
 
     def build_greedy(self, d_matrix: np.ndarray) -> Image.Image:
         """Construct the mosaic image using a greedy tile assignement algorithm.
 
+        This leads to less accurate mosaics, but is significantly faster than the
+        optimal assignement algorithm, especialy when the distance matrix is large.
+
         Args:
-            d_matrix: Use a pre-computed distance matrix.
+            d_matrix: The computed distance matrix.
 
         Returns:
-            The PIL.Image instance of the mosaic.
+            The `PIL.Image` instance of the mosaic.
         """
         mosaic = np.zeros((self.size[1], self.size[0], 3))
 
@@ -243,7 +282,7 @@ class Mosaic:
             if slices_i in placed_master_arrays or tile in placed_tiles:
                 continue
             slices = self.grid.slices[slices_i]
-            tile_array = self.pool.arrays[tile]
+            tile_array = self.pool.array[tile]
             # if the grid has been subdivided then the tile should be shrunk to
             # the size of the subdivision
             array_size = (
@@ -270,10 +309,10 @@ class Mosaic:
         See: https://en.wikipedia.org/wiki/Assignment_problem
 
         Args:
-            d_matrix: The distanace matrix to use to build the mosaic.
+            d_matrix: The computed distance matrix.
 
         Returns:
-            The PIL.Image instance of the mosaic.
+            The `PIL.Image` instance of the mosaic.
 
         Examples:
             Building a mosaic.
@@ -290,12 +329,12 @@ class Mosaic:
         if self.n_appearances > 0:
             d_matrix = np.tile(d_matrix, self.n_appearances)
 
-        self._log.info("Computing optimal tile assignment.")
+        LOGGER.info("Computing optimal tile assignment.")
         row_ind, col_ind = linear_sum_assignment(d_matrix)
         pbar = tqdm(total=d_matrix.shape[0], desc="Building mosaic")
         for row, col in zip(row_ind, col_ind):
             slices = self.grid.slices[row]
-            tile_array = self.pool.arrays[col % len(self.pool.arrays)]
+            tile_array = self.pool.array[col % len(self.pool.array)]
             # if the grid has been subdivided then the tile should be shrunk to
             # the size of the subdivision
             array_size = (

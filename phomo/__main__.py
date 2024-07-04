@@ -115,6 +115,22 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         type=int,
     )
     parser.add_argument(
+        "-e",
+        "--equalize",
+        help="Equalize the colour distributions to cover the full colour space.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--match-master-to-tiles",
+        help="Match the master image's colour distribution with the tile image colours.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--match-tiles-to-master",
+        help="Match the tile images' colour distribution with the master image colours.",
+        action="store_true",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         help="Verbosity.",
@@ -164,15 +180,22 @@ def main():
         Path(args.master),
         crop_ratio=args.master_crop_ratio,
         img_size=master_size,  # type: ignore
-        convert=mode,
+        mode=mode,
     )
 
     pool = Pool.from_dir(
         Path(args.tile_dir),
         crop_ratio=args.tile_crop_ratio,
         tile_size=tile_size,  # type: ignore
-        convert=mode,
+        mode=mode,
     )
+    if args.equalize:
+        master = master.equalize()
+        pool = pool.equalize()
+    elif args.match_tiles_to_master:
+        pool = pool.match(master)
+    elif args.match_master_to_tiles:
+        master = master.match(pool)
 
     mosaic = Mosaic(master, pool, n_appearances=args.n_appearances)
     for threshold in args.subdivisions:

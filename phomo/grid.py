@@ -6,6 +6,8 @@ from PIL import Image
 
 from .master import Master
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Grid:
     def __init__(
@@ -29,7 +31,6 @@ class Grid:
             self.master.array.shape[0] % self.tile_shape[0] // 2,
             self.master.array.shape[1] % self.tile_shape[1] // 2,
         )
-        self._log = logging.getLogger(__name__)
         self._slices = None
         self._arrays = None
 
@@ -37,7 +38,7 @@ class Grid:
     def arrays(self) -> List[np.ndarray]:
         """List of arrays containing the pixel values of all the slices."""
         if self._arrays is None:
-            self._log.debug("Computing arrays.")
+            LOGGER.debug("Computing arrays.")
             self._arrays = [
                 self.master.array[slices[0], slices[1]] for slices in self.slices
             ]
@@ -47,7 +48,7 @@ class Grid:
     def slices(self) -> List[Tuple[slice, slice]]:
         """Mosaic grid slices."""
         if self._slices is None:
-            self._log.debug("Computing slices.")
+            LOGGER.debug("Computing slices.")
             self._slices = list(self._compute_slices())
         return self._slices
 
@@ -74,7 +75,7 @@ class Grid:
 
     @staticmethod
     def _subdivide(
-        slices: Tuple[slice, slice]
+        slices: Tuple[slice, slice],
     ) -> Tuple[
         Tuple[slice, slice],
         Tuple[slice, slice],
@@ -131,14 +132,14 @@ class Grid:
         for i, slices in enumerate(self.slices):
             pixels = self.master.array[slices[0], slices[1]].reshape(-1, 3)
             contrast = np.mean(np.std(pixels / 255, axis=0))
-            self._log.debug("Contrast slice %i: %f", i, contrast)
+            LOGGER.debug("Contrast slice %i: %f", i, contrast)
             if contrast > threshold:
-                self._log.debug("Dividing slice %i", i)
+                LOGGER.debug("Dividing slice %i", i)
                 yield from self._subdivide(slices)
                 n_divisions += 1
             else:
                 yield slices
-        self._log.info("Subdivided %i tiles.", n_divisions)
+        LOGGER.info("Subdivided %i tiles.", n_divisions)
 
     def subdivide(self, threshold: float) -> None:
         """Subdivide grid based on contrast.
@@ -150,7 +151,7 @@ class Grid:
             threshold: contrast threshold at which to divide the slice into 4
                 smaller slices. Between 0 and 1.
         """
-        self._log.info("Subdividing with threshold %f", threshold)
+        LOGGER.info("Subdividing with threshold %f", threshold)
         self._slices = list(self._yield_subdivide(threshold))
         # clear the cached arrays
         self._arrays = None

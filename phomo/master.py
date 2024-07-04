@@ -1,5 +1,5 @@
 import logging
-from pathlib import Path
+from os import PathLike
 from typing import Optional, Tuple
 
 import numpy as np
@@ -8,17 +8,17 @@ from PIL import Image
 from .palette import Palette
 from .utils import open_img_file
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Master(Palette):
     @classmethod
     def from_file(
         cls,
-        master_image_file: Path,
-        *args,
+        master_image_file: PathLike,
         crop_ratio: Optional[float] = None,
         img_size: Optional[Tuple[int, int]] = None,
-        convert: Optional[str] = None,
-        **kwargs,
+        mode: Optional[str] = None,
     ) -> "Master":
         """Create a master image from file.
 
@@ -26,7 +26,7 @@ class Master(Palette):
             master_image_file: path to image file.
             crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
             img_size: resize the image to the provided size, width followed by height.
-            convert: convert the image to the provided mode. See PIL Modes.
+            mode: convert the image to the provided mode. See PIL Modes.
 
         Returns:
             Master image instance.
@@ -37,12 +37,12 @@ class Master(Palette):
             >>> Master.from_file("master.png", crop_ratio=1, img_size=(1280, 1280), convert="L")
         """
         img = open_img_file(
-            master_image_file, crop_ratio=crop_ratio, size=img_size, convert=convert
+            master_image_file, crop_ratio=crop_ratio, size=img_size, mode=mode
         )
-        return cls.from_image(img, *args, **kwargs)
+        return cls.from_image(img)
 
     @classmethod
-    def from_image(cls, master_image: Image.Image, *args, **kwargs) -> "Master":
+    def from_image(cls, master_image: Image.Image) -> "Master":
         """Create a master image from PIL.Image.Image
 
         Args:
@@ -55,7 +55,7 @@ class Master(Palette):
         # make sure the arrays have 3 channels even in black and white
         if array.ndim == 2:
             array = np.stack([array] * 3, -1)
-        return cls(array, *args, **kwargs)
+        return cls(array)
 
     def __init__(self, array: np.ndarray) -> None:
         """The master image.
@@ -67,8 +67,7 @@ class Master(Palette):
             Master image instance.
         """
         self.array = array
-        self._log = logging.getLogger(__name__)
-        self._log.info("master shape: %s", self.array.shape)
+        LOGGER.info("master shape: %s", self.array.shape)
 
     @property
     def img(self):

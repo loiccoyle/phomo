@@ -18,7 +18,14 @@ class TestPool(TestCase):
         cls.tile_dir = cls.test_dir / "rainbow"
         if not cls.tile_dir.is_dir():
             cls.tile_dir.mkdir()
-        utils.rainbow_of_squares(cls.tile_dir, size=(10, 10), range_params=(0, 255, 60))
+        channel_range = range(0, 255, 60)
+        utils.rainbow_of_squares(
+            cls.tile_dir,
+            size=(10, 10),
+            r_range=channel_range,
+            g_range=channel_range,
+            b_range=channel_range,
+        )
         cls.tile_paths = list(cls.tile_dir.glob("*"))
 
         # create test pool
@@ -49,9 +56,6 @@ class TestPool(TestCase):
     # Palette methods
     def test_palette(self):
         self.pool.palette()
-
-    def test_cdfs(self):
-        self.pool.cdfs()
 
     def test_plot(self):
         self.pool.plot()

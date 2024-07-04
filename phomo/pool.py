@@ -1,25 +1,27 @@
 import logging
+from os import PathLike
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
+from numpy.typing import ArrayLike
 from PIL import Image
 from tqdm.auto import tqdm
 
 from .palette import Palette
 from .utils import open_img_file
 
+LOGGER = logging.getLogger(__name__)
+
 
 class Pool(Palette):
     @classmethod
     def from_dir(
         cls,
-        tile_dir: Union[str, Path],
-        *args,
+        tile_dir: PathLike,
         crop_ratio: Optional[float] = None,
         tile_size: Optional[Tuple[int, int]] = None,
-        convert: Optional[str] = None,
-        **kwargs,
+        mode: Optional[str] = None,
     ) -> "Pool":
         """Create a `Pool` instance from the images in a directory.
 
@@ -28,30 +30,28 @@ class Pool(Palette):
             crop_ratio: width to height ratio to crop the tile images to. 1 results in a
                 square image.
             tile_size: resize the image to the provided size, width followed by height.
-            convert: convert the image to the provided mode.
+            mode: convert the images to the provided mode.
                 See [PIL Modes](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes).
         """
         if not isinstance(tile_dir, Path):
             tile_dir = Path(tile_dir)
         if not tile_dir.is_dir():
             raise ValueError(f"'{tile_dir}' is not a directory.")
-        arrays = cls._load_files(
+        array = cls._load_files(
             list(tile_dir.glob("*")),
             crop_ratio=crop_ratio,
             size=tile_size,
-            convert=convert,
+            mode=mode,
         )
-        return cls(arrays, *args, **kwargs)
+        return cls(array)
 
     @classmethod
     def from_files(
         cls,
-        files: Sequence[Path],
-        *args,
+        files: Sequence[PathLike],
         crop_ratio: Optional[float] = None,
         tile_size: Optional[Tuple[int, int]] = None,
-        convert: Optional[str] = None,
-        **kwargs,
+        mode: Optional[str] = None,
     ) -> "Pool":
         """Create a `Pool` instance from a list of images.
 
@@ -59,27 +59,23 @@ class Pool(Palette):
             files: list of paths to the tile images.
             crop_ratio: width to height ratio to crop the master image to. 1 results in a square image.
             tile_size: resize the image to the provided size, width followed by height.
-            convert: convert the image to the provided mode.
+            mode: mode the image to the provided mode.
                 See [PIL Modes](https://pillow.readthedocs.io/en/stable/handbook/concepts.html#modes).
         """
-        arrays = cls._load_files(
-            files, crop_ratio=crop_ratio, size=tile_size, convert=convert
-        )
-        return cls(arrays, *args, **kwargs)
+        array = cls._load_files(files, crop_ratio=crop_ratio, size=tile_size, mode=mode)
+        return cls(array)
 
     def __init__(
         self,
-        arrays: Sequence[np.ndarray],
+        array: ArrayLike,
     ) -> None:
-        """A `Pool` of tile images.
+        """A `Pool` of tile images, to use in contructing the photo mosaic.
 
         Args:
-            arrays: list of arrays containing the image pixel values. Should
-                contain 3 colour channels.
+            array: `Pool` image data array. Should be (n_tiles, height, width, 3)
         """
-        self.arrays = np.stack(arrays)
-        self._log = logging.getLogger(__name__)
-        self._log.info("Number of tiles: %s", len(self.arrays))
+        self.array = np.array(array)
+        LOGGER.info("Number of tiles: %s", len(self.array))
 
     @property
     def tiles(self) -> "PoolTiles":
@@ -90,18 +86,15 @@ class Pool(Palette):
 
             >>> pool.tiles[0].show()
         """
-        return PoolTiles(self.arrays)
+        return PoolTiles(self.array)
 
     @property
     def pixels(self) -> np.ndarray:
         """Array containing the 3-channel pixel values of all the images in the Pool."""
-        # if self._colors is None:
-        #     self._log.debug("Computing colors.")
-        #     self._colors = self._flatten_arrays(self.arrays)
-        return np.vstack([array.reshape(-1, array.shape[-1]) for array in self.arrays])
+        return np.vstack([array.reshape(-1, array.shape[-1]) for array in self.array])
 
     @staticmethod
-    def _load_files(files: Sequence[Path], **kwargs) -> List[np.ndarray]:
+    def _load_files(files: Sequence[PathLike], **kwargs) -> List[np.ndarray]:
         arrays = []
         for tile in tqdm(files, desc="Loading tiles"):
             img = open_img_file(tile, **kwargs)
@@ -113,7 +106,7 @@ class Pool(Palette):
         return arrays
 
     def __len__(self) -> int:
-        return len(self.arrays)
+        return len(self.array)
 
     def __repr__(self) -> str:
         return f"""{self.__class__.__module__}.{self.__class__.__name__} at {hex(id(self))}:
@@ -123,8 +116,8 @@ class Pool(Palette):
 class PoolTiles:
     """Helper interface to access of `PIL.Image` instances of the tiles."""
 
-    def __init__(self, arrays: np.ndarray) -> None:
-        self._arrays = arrays
+    def __init__(self, array: np.ndarray) -> None:
+        self._array = array
 
     def __getitem__(self, index) -> Image.Image:
-        return Image.fromarray(self._arrays[index].round(0).astype("uint8"), mode="RGB")
+        return Image.fromarray(self._array[index].round(0).astype("uint8"), mode="RGB")

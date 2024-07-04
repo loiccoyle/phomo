@@ -58,7 +58,8 @@ usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO]
              [-s MASTER_SIZE [MASTER_SIZE ...]] [-C TILE_CROP_RATIO]
              [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-b] [-g]
              [-d SUBDIVISIONS [SUBDIVISIONS ...]] [-G]
-             [-m {greyscale,norm,luv_approx}] [-j WORKERS] [-v]
+             [-m {greyscale,norm,luv_approx}] [-j WORKERS] [-e]
+             [--match-master-to-tiles] [--match-tiles-to-master] [-v]
              master tile_dir
 
 positional arguments:
@@ -91,6 +92,14 @@ options:
   -j WORKERS, --workers WORKERS
                         Number of workers use to run when computing the
                         distance matrix.
+  -e, --equalize        Equalize the colour distributions to cover the full
+                        colour space.
+  --match-master-to-tiles
+                        Match the master image's colour distribution with the
+                        tile image colours.
+  --match-tiles-to-master
+                        Match the tile images' colour distribution with the
+                        master image colours.
   -v, --verbose         Verbosity.
 ```
 

@@ -26,6 +26,7 @@ matplotlib = "^3.4.1"
 scipy = "^1.11.2"
 
 numba = { version = "^0.60.0", optional = true }
+opencv-python = "^4.10.0.84"
 
 [tool.poetry.extras]
 cuda = ["numba"]
