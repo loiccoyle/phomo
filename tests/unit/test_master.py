@@ -41,9 +41,9 @@ class TestMaster(TestCase):
             == self.master_array.shape[0] * self.master_array.shape[1]
         )
 
-    # Palette methods
+    # plot methods
     def test_palette(self):
-        self.master.palette()
+        self.master.plot()
 
     def test_plot(self):
         self.master.plot()

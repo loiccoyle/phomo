@@ -53,9 +53,9 @@ class TestPool(TestCase):
     def test_len(self):
         assert len(self.tile_paths) == len(self.pool)
 
-    # Palette methods
+    # plot methods
     def test_palette(self):
-        self.pool.palette()
+        self.pool.plot()
 
     def test_plot(self):
         self.pool.plot()

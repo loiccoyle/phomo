@@ -74,8 +74,7 @@ class Pool(Palette):
         Args:
             array: `Pool` image data array. Should be (n_tiles, height, width, 3)
         """
-        self.array = np.array(array)
-        LOGGER.info("Number of tiles: %s", len(self.array))
+        super().__init__(array)
 
     @property
     def tiles(self) -> "PoolTiles":

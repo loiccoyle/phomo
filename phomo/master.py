@@ -66,8 +66,7 @@ class Master(Palette):
         Returns:
             Master image instance.
         """
-        self.array = array
-        LOGGER.info("master shape: %s", self.array.shape)
+        super().__init__(array)
 
     @property
     def img(self):
