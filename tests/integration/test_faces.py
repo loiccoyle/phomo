@@ -12,6 +12,7 @@ from phomo import Master, Mosaic, Pool
 DATA_DIR = Path(__file__).parents[1] / "data"
 FACES_TAR = DATA_DIR / "faces.tar.gz"
 EXPECTED_MOSAIC = DATA_DIR / "mosaic.png"
+UPDATE_EXPECTED_IMG = os.getenv("PHOMO_UPDATE_EXPECTED_IMG", False)
 
 
 def is_within_directory(directory, target):
@@ -41,7 +42,7 @@ def faces_dir(tmp_path):
 
 @pytest.fixture
 def master_file(faces_dir):
-    return list((faces_dir).glob("*"))[1000]
+    return sorted(list((faces_dir).glob("*")))[1000]
 
 
 def test__mosaic_faces(faces_dir, master_file):
@@ -49,11 +50,13 @@ def test__mosaic_faces(faces_dir, master_file):
     master = Master.from_file(master_file, crop_ratio=1, img_size=(200, 200))
     mosaic = Mosaic(master, pool)
     mosaic_img = mosaic.build(mosaic.d_matrix(workers=2))
+    if UPDATE_EXPECTED_IMG:
+        mosaic_img.save(EXPECTED_MOSAIC)
     assert np.allclose(np.array(mosaic_img), np.array(Image.open(EXPECTED_MOSAIC)))
 
 
 def test__mosaic_faces_cli(faces_dir, master_file, tmp_path):
-    outfile = tmp_path / "mosaic.png"
+    outfile: Path = tmp_path / "mosaic.png"
     subprocess.run(
         f"phomo {str(master_file)} {str(faces_dir)} -c 1 -s 200 200 -C 1 -S 20 20 -o {str(outfile)}",
         check=True,
