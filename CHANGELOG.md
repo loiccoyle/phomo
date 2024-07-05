@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/loiccoyle/phomo/compare/v1.0.2...v1.1.0) (2024-07-05)
+
+
+### Features
+
+* **palette:** add more plots ([ce7b124](https://github.com/loiccoyle/phomo/commit/ce7b124ce32de45f27273b4d52f8cc28bb7ffcd2))
+
 ## [1.0.2](https://github.com/loiccoyle/phomo/compare/v1.0.1...v1.0.2) (2024-07-05)
 
 
