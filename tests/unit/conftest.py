@@ -1,9 +1,9 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 import pytest
 
 from phomo import Pool, utils
-
 
 TEST_PATH = Path("test_tiles/")
 

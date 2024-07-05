@@ -38,7 +38,7 @@ def test_arrays(grid: Grid, master_array):
     )
 
 
-def test_subdivide(grid: Grid, master_array):
+def test_subdivide(grid: Grid):
     prev_len = len(grid.slices)
     grid.subdivide(0.1)
     new_len = len(grid.slices)
