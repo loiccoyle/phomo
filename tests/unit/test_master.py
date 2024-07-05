@@ -1,54 +1,49 @@
-from pathlib import Path
-from shutil import rmtree
-from unittest import TestCase
-
 import numpy as np
+import pytest
 from PIL import Image
 
 from phomo import Master
 
 
-class TestMaster(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.test_dir = Path("test_master")
-        if not cls.test_dir.is_dir():
-            cls.test_dir.mkdir()
-        cls.master_path = cls.test_dir / "master.png"
-        # create a test image object
-        cls.master_array = np.ones((64, 64, 3), dtype="uint8") * 255
-        cls.master_img = Image.fromarray(cls.master_array)
-        # create a test image file
-        cls.master_img.save(cls.master_path)
-        # create test master
-        cls.master = Master.from_file(cls.master_path)
+@pytest.fixture
+def master_array():
+    return np.ones((64, 64, 3), dtype="uint8") * 255
 
-    def test_constructors(self):
-        master_img = Master.from_image(self.master_img)
-        master_file = Master.from_file(self.master_path)
-        assert (master_img.array == master_file.array).all()
-        # make sure it works for single channel modes
-        master = Master.from_image(self.master_img.convert("L"))
-        assert master.array.shape[-1] == 3
 
-    def test_img(self):
-        assert isinstance(self.master.img, Image.Image)
+@pytest.fixture
+def master_img(master_array):
+    return Image.fromarray(master_array)
 
-    def test_pixels(self):
-        assert self.master.pixels.shape[-1] == 3
-        assert (
-            self.master.pixels.shape[0]
-            == self.master_array.shape[0] * self.master_array.shape[1]
-        )
 
-    # plot methods
-    def test_palette(self):
-        self.master.plot()
+@pytest.fixture
+def master_path(tmp_path, master_img):
+    path = tmp_path / "master.png"
+    master_img.save(path)
+    return path
 
-    def test_plot(self):
-        self.master.plot()
 
-    @classmethod
-    def tearDownClass(cls):
-        if cls.test_dir.is_dir():
-            rmtree(cls.test_dir)
+@pytest.fixture
+def master(master_path):
+    return Master.from_file(master_path)
+
+
+def test_constructors(master_img: Image.Image, master_path):
+    master_from_img = Master.from_image(master_img)
+    master_from_file = Master.from_file(master_path)
+    assert (master_from_img.array == master_from_file.array).all()
+    # make sure it works for single channel modes
+    master = Master.from_image(master_img.convert("L"))
+    assert master.array.shape[-1] == 3
+
+
+def test_img(master: Master):
+    assert isinstance(master.img, Image.Image)
+
+
+def test_pixels(master: Master, master_array):
+    assert master.pixels.shape[-1] == 3
+    assert master.pixels.shape[0] == master_array.shape[0] * master_array.shape[1]
+
+
+def test_plot(master: Master):
+    master.plot()

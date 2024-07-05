@@ -1,68 +1,39 @@
-from pathlib import Path
-from shutil import rmtree
-from unittest import TestCase
-
 import numpy as np
+import pytest
 from PIL import Image
 
-from phomo import Master, Mosaic, Pool, utils
+from phomo import Master, Mosaic, Pool
 
 
-class TestMosaic(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.test_dir = Path("test_mosaic")
-        if not cls.test_dir.is_dir():
-            cls.test_dir.mkdir()
+@pytest.fixture
+def mosaic(pool_big_tiles):
+    master_shape = (550, 512)
+    # create a test image object
+    master_array = np.ones((*master_shape, 3), dtype="uint8") * 255
 
-        cls.master_shape = (550, 512)
-        cls.master_path = cls.test_dir / "master.png"
-        # create a test image object
-        cls.master_array = np.ones((*cls.master_shape, 3), dtype="uint8") * 255
-        cls.master_img = Image.fromarray(cls.master_array)
-        # create a test image file
-        cls.master_img.save(cls.master_path)
-        # create test master
-        cls.master = Master.from_file(cls.master_path)
+    # create test master
+    master = Master.from_image(Image.fromarray(master_array))
+    return Mosaic(master, pool_big_tiles)
 
-        # rainbow tile directory
-        cls.tile_dir = cls.test_dir / "rainbow"
-        if not cls.tile_dir.is_dir():
-            cls.tile_dir.mkdir()
-        channel_range = range(0, 255, 60)
-        utils.rainbow_of_squares(
-            cls.tile_dir,
-            size=(50, 50),
-            r_range=channel_range,
-            g_range=channel_range,
-            b_range=channel_range,
-        )
-        cls.tile_paths = list(cls.tile_dir.glob("*"))
-        # create test pool
-        cls.pool = Pool.from_dir(cls.tile_dir)
 
-        cls.mosaic = Mosaic(cls.master, cls.pool)
+def test_tile_shape(mosaic: Mosaic, pool_big_tiles: Pool):
+    assert mosaic.tile_shape == pool_big_tiles.array[0].shape[:-1]
 
-    def test_tile_shape(self):
-        assert self.mosaic.tile_shape == self.pool.array[0].shape[:-1]
 
-    def test_size(self):
-        assert self.mosaic.size == (500, 550)
+def test_size(mosaic: Mosaic):
+    assert mosaic.size == (500, 550)
 
-    def test_n_leftover(self):
-        assert self.mosaic.n_leftover == 15
 
-    def test_build(self):
-        mosaic_img = self.mosaic.build(self.mosaic.d_matrix(workers=1))
-        assert mosaic_img.size == self.mosaic.size
+def test_n_leftover(mosaic: Mosaic):
+    assert mosaic.n_leftover == 15
 
-        mosaic_img = self.mosaic.build(self.mosaic.d_matrix(workers=2))
-        assert mosaic_img.size == self.mosaic.size
 
-        with self.assertRaises(ValueError):
-            mosaic_img = self.mosaic.build(self.mosaic.d_matrix(workers=0))
+def test_build(mosaic: Mosaic):
+    mosaic_img = mosaic.build(mosaic.d_matrix(workers=1))
+    assert mosaic_img.size == mosaic.size
 
-    @classmethod
-    def tearDownClass(cls):
-        if cls.test_dir.is_dir():
-            rmtree(cls.test_dir)
+    mosaic_img = mosaic.build(mosaic.d_matrix(workers=2))
+    assert mosaic_img.size == mosaic.size
+
+    with pytest.raises(ValueError):
+        mosaic_img = mosaic.build(mosaic.d_matrix(workers=0))
