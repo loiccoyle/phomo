@@ -36,7 +36,7 @@ If you're just interested in command line usage, consider using [pipx](https://p
 
 ### Python package
 
-See the [`examples`](./examples) folder for usage as a python package.
+Check out the [docs](https://loiccoyle.com/phomo) and the [`examples`](./examples).
 
 ### CLI
 
