@@ -85,6 +85,7 @@ jobs:
   readme:
     runs-on: ubuntu-latest
     needs: tests
+    if: github.event_name == 'push' && github.repository == 'loiccoyle/phomo' && github.ref_name == 'main'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -100,7 +101,7 @@ jobs:
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "docs: update readme"
+          commit_message: "docs(readme): update help message"
           branch: ${{ github.head_ref }}
           commit_user_name: github-actions[bot]
           commit_user_email: github-actions[bot]@users.noreply.github.com
