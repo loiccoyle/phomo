@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/loiccoyle/phomo/compare/v1.1.0...v1.1.1) (2024-08-03)
+
+
+### Documentation
+
+* **readme:** add link to docs ([7fbb0a6](https://github.com/loiccoyle/phomo/commit/7fbb0a645b40d315aeef764a63f82f6a3fadc7d2))
+
 ## [1.1.0](https://github.com/loiccoyle/phomo/compare/v1.0.2...v1.1.0) (2024-07-05)
 
 
