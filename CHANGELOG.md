@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/loiccoyle/phomo/compare/v1.1.1...v1.1.2) (2024-10-08)
+
+
+### Bug Fixes
+
+* docstring ([5b806a7](https://github.com/loiccoyle/phomo/commit/5b806a7a3968dfb4da3c59379b82c69034c9d991))
+
 ## [1.1.1](https://github.com/loiccoyle/phomo/compare/v1.1.0...v1.1.1) (2024-08-03)
 
 
