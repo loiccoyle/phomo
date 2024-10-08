@@ -38,8 +38,8 @@ class Palette:
         return self.__class__(matched_image.reshape(out_shape))
 
     def match(self, other: "Palette"):
-        """Match the colour distribution of the `Master` to the distribution of the
-        `Pool` using the colour transfer algorithm.
+        """Match the colour distribution of this object to the colour distribution of the
+        `other` using the Reinhard colour transfer algorithm.
 
         See:
             https://api.semanticscholar.org/CorpusID:14088925
