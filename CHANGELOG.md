@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.2](https://github.com/loiccoyle/phomo/compare/v1.1.1...v1.1.2) (2024-10-20)
+
+
+### Bug Fixes
+
+* docstring ([5b806a7](https://github.com/loiccoyle/phomo/commit/5b806a7a3968dfb4da3c59379b82c69034c9d991))
+
+
+### Documentation
+
+* add a link to the rust/wasm version ([dcc3a38](https://github.com/loiccoyle/phomo/commit/dcc3a38d5c09eaf3c2511988e9f87a90a5ee9a57))
+
 ## [1.1.1](https://github.com/loiccoyle/phomo/compare/v1.1.0...v1.1.1) (2024-08-03)
 
 
