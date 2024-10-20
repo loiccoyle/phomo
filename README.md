@@ -9,6 +9,8 @@
   <img src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-informational">
 </p>
 
+> Prefer rust? Or a `npm` package? Check out [`loiccoyle/phomo-rs`](https://github.com/loiccoyle/phomo-rs)!
+
 `phomo` lets you create [photographic mosaics](https://en.wikipedia.org/wiki/Photographic_mosaic).
 It arranges the tile images to best recreate a master image. To achieve this, `phomo` computes a distance matrix between all the tiles and the master image regions, looking not just at the average colour but the norm of the colour distributions differences.
 Once this distance matrix is computed, each tile is assigned to the optimal master image region by solving the linear sum assignment problem.
