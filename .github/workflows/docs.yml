@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        name: Checkout the repository
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
@@ -30,5 +31,27 @@ jobs:
         uses: abatilo/actions-poetry@v2
       - name: Install doc dependencies
         run: poetry install --with docs
-      - name: Deploy docs
-        run: poetry run mkdocs gh-deploy --force
+      - name: Build docs
+        run: poetry run mkdocs build
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Deploy docs to /phomo
+        run: |
+          cd gh-pages
+          mkdir -p phomo
+          # Clear old files
+          rm -rf phomo/*
+          cp -r ../site/* phomo/
+          # pull the CNAME back out to the root
+          mv phomo/CNAME .
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git commit -m "Deploy docs to /phomo"
+          git push origin gh-pages
