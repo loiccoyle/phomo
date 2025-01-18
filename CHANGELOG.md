@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.2](https://github.com/loiccoyle/phomo/compare/v1.1.1...v1.1.2) (2025-01-18)
+
+
+### Bug Fixes
+
+* **deps:** update deps to close dependabot security alerts ([8b06dc6](https://github.com/loiccoyle/phomo/commit/8b06dc6537e8a3a174805e319c0190d76667ca5b))
+* docstring ([5b806a7](https://github.com/loiccoyle/phomo/commit/5b806a7a3968dfb4da3c59379b82c69034c9d991))
+
+
+### Documentation
+
+* add a link to the rust/wasm version ([dcc3a38](https://github.com/loiccoyle/phomo/commit/dcc3a38d5c09eaf3c2511988e9f87a90a5ee9a57))
+* add CNAME ([c88e452](https://github.com/loiccoyle/phomo/commit/c88e4525cad37dee02dde603dce2de682668da64))
+* deploy to phomo/ folder ([c17c7a0](https://github.com/loiccoyle/phomo/commit/c17c7a060ad20030f0ffeea9555cb953656b6bab))
+* new site url ([3aaf3c0](https://github.com/loiccoyle/phomo/commit/3aaf3c0a8f979291f44170482a059f403f6652d7))
+* **readme:** update docs link ([c14fb89](https://github.com/loiccoyle/phomo/commit/c14fb89286b36d1d5a49afd8ebfd492425cd37d1))
+
 ## [1.1.1](https://github.com/loiccoyle/phomo/compare/v1.1.0...v1.1.1) (2024-08-03)
 
 
