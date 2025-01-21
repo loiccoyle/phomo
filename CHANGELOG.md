@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/loiccoyle/phomo/compare/v1.1.2...v1.2.0) (2025-01-21)
+
+
+### Features
+
+* **cli:** expose the greedy assignment algorithm in the CLI ([975ef28](https://github.com/loiccoyle/phomo/commit/975ef28ed38d0d28af4810c0aba4e5b11a3db151)), closes [#35](https://github.com/loiccoyle/phomo/issues/35)
+
+
+### Documentation
+
+* add `--greedy` flag ([1b02228](https://github.com/loiccoyle/phomo/commit/1b02228a849a9b030553fc1f07d8f8ae9f8d0cb3))
+* don't generate init page ([2e8ed3c](https://github.com/loiccoyle/phomo/commit/2e8ed3c02099be5ae5238ccb28144909873e4392))
+
 ## [1.1.2](https://github.com/loiccoyle/phomo/compare/v1.1.1...v1.1.2) (2025-01-18)
 
 
