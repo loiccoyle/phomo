@@ -31,6 +31,7 @@ phomo <master-image-path> <tile-directory-path> [options]
 - `-e, --equalize`: Equalize the colour distributions to cover the full colour space.
 - `--match-master-to-tiles`: Match the master image's colour distribution with the tile image colours.
 - `--match-tiles-to-master`: Match the tile images' colour distribution with the master image colours.
+- `--greedy`: Use a greedy tile assignment algorithm. Should improve performance at the expense of accuracy.
 - `-v, --verbose`: Verbosity.
 
 ## Examples
