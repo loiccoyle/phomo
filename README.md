@@ -61,7 +61,8 @@ usage: phomo [-h] [-o OUTPUT] [-c MASTER_CROP_RATIO]
              [-S TILE_SIZE [TILE_SIZE ...]] [-n N_APPEARANCES] [-b] [-g]
              [-d SUBDIVISIONS [SUBDIVISIONS ...]] [-G]
              [-m {greyscale,norm,luv_approx}] [-j WORKERS] [-e]
-             [--match-master-to-tiles] [--match-tiles-to-master] [-v]
+             [--match-master-to-tiles] [--match-tiles-to-master] [--greedy]
+             [-v]
              master tile_dir
 
 positional arguments:
@@ -102,6 +103,8 @@ options:
   --match-tiles-to-master
                         Match the tile images' colour distribution with the
                         master image colours.
+  --greedy              Use a greedy tile assignment algorithm. Should improve
+                        performance at the expense of accuracy.
   -v, --verbose         Verbosity.
 ```
 

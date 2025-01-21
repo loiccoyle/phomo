@@ -131,6 +131,11 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         action="store_true",
     )
     parser.add_argument(
+        "--greedy",
+        help="Use a greedy tile assignment algorithm. Should improve performance at the expense of accuracy.",
+        action="store_true",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         help="Verbosity.",
@@ -213,7 +218,9 @@ def main():
             if not args.gpu
             else mosaic.d_matrix_cuda(metric=args.metric)
         )
-        mosaic_im = mosaic.build(d_matrix)
+        mosaic_im = (
+            mosaic.build_greedy(d_matrix) if args.greedy else mosaic.build(d_matrix)
+        )
         if args.output is None:
             mosaic_im.show()
         else:
