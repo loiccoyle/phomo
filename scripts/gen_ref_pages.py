@@ -17,7 +17,8 @@ for path in sorted(src.rglob("*.py")):
     parts = tuple(module_path.parts)
 
     if parts[-1] == "__init__":
-        parts = parts[:-1]
+        continue
+        # parts = parts[:-1]
     elif parts[-1] == "__main__":
         continue
 
